@@ -1,15 +1,14 @@
-
 use pyo3::prelude::*;
 
-/// Formats the sum of two numbers as string.
+/// Returns the UTF-16 length of a string.
 #[pyfunction]
-fn sum_as_string(a: usize, b: usize) -> PyResult<String> {
-    Ok((a + b).to_string())
+fn utf16len(string: String) -> usize {
+    return string.encode_utf16().count();
 }
 
 /// A Python module implemented in Rust.
 #[pymodule]
 fn miguel_lib(_py: Python, m: &PyModule) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(sum_as_string, m)?)?;
+    m.add_function(wrap_pyfunction!(utf16len, m)?)?;
     Ok(())
 }

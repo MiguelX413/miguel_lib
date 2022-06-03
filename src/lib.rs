@@ -2,7 +2,7 @@ use pyo3::prelude::*;
 
 /// Returns the UTF-16 length of a string.
 #[pyfunction]
-fn utf16len(string: String) -> usize {
+fn utf16len(string: &str) -> usize {
     return string.encode_utf16().count();
 }
 

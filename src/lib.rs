@@ -1,5 +1,20 @@
 use pyo3::prelude::*;
 
+/// Interval class.
+#[pyclass]
+struct Interval {
+    _intervals: Vec<(isize, isize)>,
+}
+
+#[pymethods]
+impl Interval {
+    #[new]
+    fn new(value: Vec<(isize, isize)>) -> Self {
+        Interval { _intervals: value }
+    }
+}
+
+
 /// Returns the UTF-16 length of a string.
 #[pyfunction]
 fn utf16len(string: &str) -> usize {
@@ -14,5 +29,6 @@ fn utf16len(string: &str) -> usize {
 #[pymodule]
 fn miguel_lib(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(utf16len, m)?)?;
+    m.add_class::<Interval>()?;
     Ok(())
 }

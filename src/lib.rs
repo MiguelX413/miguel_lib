@@ -14,10 +14,8 @@ impl Interval {
     }
     fn __repr__(&self) -> String {
         let mut intervals: Vec<String> = vec![];
-        for interval in self._intervals.iter() {
-            intervals.push(format!("({}, {})", interval.0, interval.1));
-        }
-        return format!("Interval([{}])", intervals.join(", "));
+        self._intervals.iter().for_each(|&f| intervals.push(format!("[{}, {}]", f.0, f.1)));
+        return format!("<Interval {}>", intervals.join(", "));
     }
 }
 

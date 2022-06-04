@@ -1,5 +1,6 @@
 from typing import List, Optional, Tuple
 
+def merge_intervals(intervals: List[Tuple[int, int]]) -> List[Tuple[int, int]]: ...
 def utf16len(string: str) -> int: ...
 
 class Interval:

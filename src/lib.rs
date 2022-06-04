@@ -1,4 +1,23 @@
+use std::cmp::max;
+
 use pyo3::prelude::*;
+
+/// Merge intervals overlapping in a list
+#[pyfunction]
+fn merge_intervals(mut intervals: Vec<(isize, isize)>) -> Vec<(isize, isize)> {
+    intervals.sort_by_key(|&a| a.0);
+    let mut index: usize = 0;
+    for i in 1..intervals.len() {
+        if intervals[index].1 >= intervals[i].0 {
+            intervals[index].1 = max(intervals[index].1, intervals[i].1);
+        } else {
+            index += 1;
+            intervals[index] = intervals[i];
+        }
+    }
+    intervals.truncate(index + 1);
+    return intervals;
+}
 
 /// Returns the UTF-16 length of a string.
 #[pyfunction]
@@ -46,6 +65,7 @@ impl Interval {
 /// A Python module implemented in Rust.
 #[pymodule]
 fn miguel_lib(_py: Python, m: &PyModule) -> PyResult<()> {
+    m.add_function(wrap_pyfunction!(merge_intervals, m)?)?;
     m.add_function(wrap_pyfunction!(utf16len, m)?)?;
     m.add_class::<Interval>()?;
     Ok(())

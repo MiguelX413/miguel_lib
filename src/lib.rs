@@ -35,9 +35,7 @@ impl Interval {
 #[pyfunction]
 fn utf16len(string: &str) -> usize {
     let mut length = 0;
-    for char in string.chars() {
-        length += char.len_utf16();
-    }
+    string.chars().for_each(|char| length += char.len_utf16());
     return length;
 }
 

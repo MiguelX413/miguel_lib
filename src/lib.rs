@@ -9,8 +9,8 @@ struct Interval {
 #[pymethods]
 impl Interval {
     #[new]
-    fn new(value: Option<Vec<(isize, isize)>>) -> Self {
-        match value {
+    fn new(interval_list: Option<Vec<(isize, isize)>>) -> Self {
+        match interval_list {
             Some(f) => Interval { _intervals: f },
             None => Interval { _intervals: vec![] }
         }

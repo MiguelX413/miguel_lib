@@ -1,5 +1,13 @@
 use pyo3::prelude::*;
 
+/// Returns the UTF-16 length of a string.
+#[pyfunction]
+fn utf16len(string: &str) -> usize {
+    let mut length = 0;
+    string.chars().for_each(|char| length += char.len_utf16());
+    return length;
+}
+
 /// Interval class.
 #[pyclass]
 struct Interval {
@@ -33,15 +41,6 @@ impl Interval {
         self._intervals.iter().for_each(|&f| intervals.push(format!("[{}, {}]", f.0, f.1)));
         return format!("({})", intervals.join(" ∪ "));
     }
-}
-
-
-/// Returns the UTF-16 length of a string.
-#[pyfunction]
-fn utf16len(string: &str) -> usize {
-    let mut length = 0;
-    string.chars().for_each(|char| length += char.len_utf16());
-    return length;
 }
 
 /// A Python module implemented in Rust.

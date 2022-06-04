@@ -15,11 +15,6 @@ impl Interval {
             None => Interval { _intervals: vec![] }
         }
     }
-    fn __repr__(&self) -> String {
-        let mut intervals: Vec<String> = vec![];
-        self._intervals.iter().for_each(|&f| intervals.push(format!("[{}, {}]", f.0, f.1)));
-        return format!("<Interval {}>", intervals.join(", "));
-    }
     fn __contains__(&self, item: isize) -> bool {
         for &interval in self._intervals.iter() {
             if interval.0 <= item && item <= interval.1 {
@@ -27,6 +22,16 @@ impl Interval {
             }
         }
         return false;
+    }
+    fn __repr__(&self) -> String {
+        let mut intervals: Vec<String> = vec![];
+        self._intervals.iter().for_each(|&f| intervals.push(format!("({}, {})", f.0, f.1)));
+        return format!("Interval([{}])", intervals.join(", "));
+    }
+    fn __str__(&self) -> String {
+        let mut intervals: Vec<String> = vec![];
+        self._intervals.iter().for_each(|&f| intervals.push(format!("[{}, {}]", f.0, f.1)));
+        return format!("({})", intervals.join(" ∪ "));
     }
 }
 

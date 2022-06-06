@@ -22,9 +22,7 @@ fn merge_intervals(mut intervals: Vec<(isize, isize)>) -> Vec<(isize, isize)> {
 /// Returns the UTF-16 length of a string.
 #[pyfunction]
 fn utf16len(string: &str) -> usize {
-    let mut length = 0;
-    string.chars().for_each(|char| length += char.len_utf16());
-    return length;
+    return string.chars().map(|char| char.len_utf16()).sum();
 }
 
 /// Interval class.
@@ -43,22 +41,13 @@ impl Interval {
         }
     }
     fn __contains__(&self, item: isize) -> bool {
-        for &interval in self._intervals.iter() {
-            if interval.0 <= item && item <= interval.1 {
-                return true;
-            }
-        }
-        return false;
+        return self._intervals.iter().any(|&f| f.0 <= item && item <= f.1);
     }
     fn __repr__(&self) -> String {
-        let mut intervals: Vec<String> = vec![];
-        self._intervals.iter().for_each(|&f| intervals.push(format!("({}, {})", f.0, f.1)));
-        return format!("Interval([{}])", intervals.join(", "));
+        return format!("Interval([{}])", self._intervals.iter().map(|&f| format!("({}, {})", f.0, f.1)).collect::<Vec<String>>().join(", "));
     }
     fn __str__(&self) -> String {
-        let mut intervals: Vec<String> = vec![];
-        self._intervals.iter().for_each(|&f| intervals.push(format!("[{}, {}]", f.0, f.1)));
-        return format!("({})", intervals.join(" ∪ "));
+        return format!("({})", self._intervals.iter().map(|&f| format!("[{}, {}]", f.0, f.1)).collect::<Vec<String>>().join(" ∪ "));
     }
 }
 

@@ -2,7 +2,7 @@ use std::cmp::max;
 
 use pyo3::prelude::*;
 
-/// Merge intervals overlapping in a list
+/// A function that merges overlapping intervals in a sequence.
 #[pyfunction]
 fn merge_intervals(mut intervals: Vec<(isize, isize)>) -> Vec<(isize, isize)> {
     intervals.sort_by_key(|&a| a.0);
@@ -19,13 +19,13 @@ fn merge_intervals(mut intervals: Vec<(isize, isize)>) -> Vec<(isize, isize)> {
     return intervals;
 }
 
-/// Returns the UTF-16 length of a string.
+/// A function that returns the UTF-16 length of a string.
 #[pyfunction]
 fn utf16len(string: &str) -> usize {
     return string.chars().map(|char| char.len_utf16()).sum();
 }
 
-/// Interval class.
+/// A class used to represent intervals.
 #[pyclass]
 struct Interval {
     _intervals: Vec<(isize, isize)>,

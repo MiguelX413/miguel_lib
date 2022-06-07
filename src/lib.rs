@@ -4,7 +4,7 @@ use pyo3::prelude::*;
 
 /// A function that merges overlapping intervals in a sequence.
 #[pyfunction]
-fn merge_intervals(mut intervals: Vec<(isize, isize)>) -> Vec<(isize, isize)> {
+fn merge_intervals(mut intervals: Vec<(i32, i32)>) -> Vec<(i32, i32)> {
     intervals.sort_by_key(|&a| a.0);
     let mut index: usize = 0;
     for i in 1..intervals.len() {
@@ -28,19 +28,19 @@ fn utf16len(string: &str) -> usize {
 /// A class used to represent intervals.
 #[pyclass]
 struct Interval {
-    _intervals: Vec<(isize, isize)>,
+    _intervals: Vec<(i32, i32)>,
 }
 
 #[pymethods]
 impl Interval {
     #[new]
-    fn new(interval_list: Option<Vec<(isize, isize)>>) -> Self {
+    fn new(interval_list: Option<Vec<(i32, i32)>>) -> Self {
         match interval_list {
             Some(f) => Interval { _intervals: f },
             None => Interval { _intervals: vec![] }
         }
     }
-    fn __contains__(&self, item: isize) -> bool {
+    fn __contains__(&self, item: i32) -> bool {
         return self._intervals.iter().any(|&f| f.0 <= item && item <= f.1);
     }
     fn __repr__(&self) -> String {

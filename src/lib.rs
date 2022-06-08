@@ -67,6 +67,12 @@ impl Interval {
     fn __str__(&self) -> String {
         return format!("({})", self.intervals.iter().map(|&f| format!("[{}, {}]", f.0, f.1)).collect::<Vec<String>>().join(" ∪ "));
     }
+    fn __or__(&self, other: &Interval) -> Interval {
+        return self.union(other);
+    }
+    fn __ior__(&mut self, other: &Interval) {
+        self.union_update(other);
+    }
 }
 
 impl Clone for Interval {

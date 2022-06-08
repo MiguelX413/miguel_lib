@@ -2,7 +2,7 @@ use std::cmp::max;
 
 use pyo3::prelude::*;
 
-fn mut_merge_intervals(intervals: &mut Vec<(i32, i32)>) {
+fn merge_intervals(intervals: &mut Vec<(i32, i32)>) {
     intervals.sort_by_key(|&a| a.0);
     let mut index: usize = 0;
     for i in 1..intervals.len() {
@@ -34,7 +34,7 @@ impl Interval {
     fn new(interval_list: Option<Vec<(i32, i32)>>) -> Self {
         match interval_list {
             Some(mut f) => {
-                mut_merge_intervals(&mut f);
+                merge_intervals(&mut f);
                 Interval { intervals: f }
             }
             None => Interval { intervals: vec![] },
@@ -47,7 +47,7 @@ impl Interval {
     }
     fn union_update(&mut self, other: &Interval) {
         self.intervals.append(&mut other.intervals.clone());
-        mut_merge_intervals(&mut self.intervals);
+        merge_intervals(&mut self.intervals);
     }
     fn __contains__(&self, item: i32) -> bool {
         return self.intervals.iter().any(|&f| f.0 <= item && item <= f.1);

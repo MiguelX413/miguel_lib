@@ -9,12 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Set up QEMU
-      id: qemu
-      uses: docker/setup-qemu-action@v1
-      with:
-        image: tonistiigi/binfmt:latest
-        platforms: all
     - name: Build for x86_64 Linux
       uses: messense/maturin-action@v1
       with:
@@ -28,6 +22,12 @@ jobs:
         command: build
         args: --release -o dist
         target: i686-unknown-linux-gnu
+    - name: Set up QEMU
+      id: qemu
+      uses: docker/setup-qemu-action@v1
+      with:
+        image: tonistiigi/binfmt:latest
+        platforms: all
     - name: Build for aarch64 Linux
       uses: messense/maturin-action@v1
       with:

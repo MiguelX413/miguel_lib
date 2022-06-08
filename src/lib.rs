@@ -18,10 +18,9 @@ fn mut_merge_intervals(intervals: &mut Vec<(i32, i32)>) {
 
 /// A function that merges overlapping intervals in a sequence.
 #[pyfunction]
-fn merge_intervals(intervals: Vec<(i32, i32)>) -> Vec<(i32, i32)> {
-    let mut output = intervals.clone();
-    mut_merge_intervals(&mut output);
-    return output;
+fn merge_intervals(mut intervals: Vec<(i32, i32)>) -> Vec<(i32, i32)> {
+    mut_merge_intervals(&mut intervals);
+    return intervals;
 }
 
 /// A function that returns the UTF-16 length of a string.
@@ -41,10 +40,9 @@ impl Interval {
     #[new]
     fn new(interval_list: Option<Vec<(i32, i32)>>) -> Self {
         match interval_list {
-            Some(f) => {
-                let mut input = f.clone();
-                mut_merge_intervals(&mut input);
-                Interval { intervals: input }
+            Some(mut f) => {
+                mut_merge_intervals(&mut f);
+                Interval { intervals: f }
             }
             None => Interval { intervals: vec![] },
         }

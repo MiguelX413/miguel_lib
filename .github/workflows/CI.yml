@@ -49,13 +49,6 @@ jobs:
         command: build
         args: --release -o dist
         target: powerpc64le-unknown-linux-gnu
-    - name: Build for mips64el Linux
-      uses: messense/maturin-action@v1
-      with:
-        manylinux: auto
-        command: build
-        args: --release -o dist
-        target: mips64el-unknown-linux-gnuabi64
     - name: Upload wheels
       uses: actions/upload-artifact@v2
       with:

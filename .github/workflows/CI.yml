@@ -49,6 +49,13 @@ jobs:
         command: build
         args: --release -o dist
         target: aarch64-unknown-linux-gnu
+    - name: Build for musl aarch64 Linux
+      uses: messense/maturin-action@v1
+      with:
+        manylinux: auto
+        command: build
+        args: --release -o dist
+        target: aarch64-unknown-linux-musl
     - name: Build for armv7 Linux
       uses: messense/maturin-action@v1
       with:

@@ -22,6 +22,12 @@ jobs:
         command: build
         args: --release -o dist
         target: x86_64-unknown-linux-musl
+    - name: Build PyPy wheel for x86_64 Linux
+      uses: messense/maturin-action@v1
+      with:
+        manylinux: auto
+        command: build
+        args: --release -o dist -i pypy3
     - name: Build for i686 Linux
       uses: messense/maturin-action@v1
       with:

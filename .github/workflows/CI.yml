@@ -41,7 +41,7 @@ jobs:
         manylinux: auto
         command: build
         args: --release -o dist
-        target: armv7-unknown-linux-gnueabi
+        target: armv7-unknown-linux-gnueabihf
     - name: Build for riscv64 Linux
       uses: messense/maturin-action@v1
       with:

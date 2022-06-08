@@ -90,13 +90,6 @@ jobs:
         command: build
         args: --release -o dist
         target: powerpc64le-unknown-linux-gnu
-    - name: Build for musl ppc64le Linux
-      uses: messense/maturin-action@v1
-      with:
-        manylinux: auto
-        command: build
-        args: --release -o dist
-        target: powerpc64le-unknown-linux-musl
     - name: Build for s390x Linux
       uses: messense/maturin-action@v1
       with:

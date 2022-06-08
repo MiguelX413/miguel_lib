@@ -66,13 +66,21 @@ jobs:
         path: dist
 
   windows:
+    strategy:
+      matrix:
+        arch: [x64, x86]
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.7'
+        architecture: ${{ matrix.arch }}
     - uses: messense/maturin-action@v1
       with:
         command: build
         args: --release --no-sdist -o dist
+        target: ${{ matrix.arch }}
     - name: Upload wheels
       uses: actions/upload-artifact@v2
       with:

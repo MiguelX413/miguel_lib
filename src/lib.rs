@@ -2,9 +2,7 @@ use std::cmp::max;
 
 use pyo3::prelude::*;
 
-/// A function that merges overlapping intervals in a sequence.
-#[pyfunction]
-fn merge_intervals(mut intervals: Vec<(i32, i32)>) -> Vec<(i32, i32)> {
+fn mut_merge_intervals(intervals: &mut Vec<(i32, i32)>) {
     intervals.sort_by_key(|&a| a.0);
     let mut index: usize = 0;
     for i in 1..intervals.len() {
@@ -16,7 +14,14 @@ fn merge_intervals(mut intervals: Vec<(i32, i32)>) -> Vec<(i32, i32)> {
         }
     }
     intervals.truncate(index + 1);
-    return intervals;
+}
+
+/// A function that merges overlapping intervals in a sequence.
+#[pyfunction]
+fn merge_intervals(intervals: Vec<(i32, i32)>) -> Vec<(i32, i32)> {
+    let mut output = intervals.clone();
+    mut_merge_intervals(&mut output);
+    return output;
 }
 
 /// A function that returns the UTF-16 length of a string.
@@ -28,7 +33,7 @@ fn utf16len(string: &str) -> usize {
 /// A class used to represent intervals.
 #[pyclass]
 struct Interval {
-    _intervals: Vec<(i32, i32)>,
+    intervals: Vec<(i32, i32)>,
 }
 
 #[pymethods]
@@ -36,18 +41,32 @@ impl Interval {
     #[new]
     fn new(interval_list: Option<Vec<(i32, i32)>>) -> Self {
         match interval_list {
-            Some(f) => Interval { _intervals: f },
-            None => Interval { _intervals: vec![] }
+            Some(f) => {
+                let mut input = f.clone();
+                mut_merge_intervals(&mut input);
+                Interval { intervals: input }
+            }
+            None => Interval { intervals: vec![] }
         }
     }
+    fn union_update(&mut self, other: Interval) {
+        self.intervals.append(&mut other.intervals.clone());
+        mut_merge_intervals(&mut self.intervals);
+    }
     fn __contains__(&self, item: i32) -> bool {
-        return self._intervals.iter().any(|&f| f.0 <= item && item <= f.1);
+        return self.intervals.iter().any(|&f| f.0 <= item && item <= f.1);
     }
     fn __repr__(&self) -> String {
-        return format!("Interval([{}])", self._intervals.iter().map(|&f| format!("({}, {})", f.0, f.1)).collect::<Vec<String>>().join(", "));
+        return format!("Interval([{}])", self.intervals.iter().map(|&f| format!("({}, {})", f.0, f.1)).collect::<Vec<String>>().join(", "));
     }
     fn __str__(&self) -> String {
-        return format!("({})", self._intervals.iter().map(|&f| format!("[{}, {}]", f.0, f.1)).collect::<Vec<String>>().join(" ∪ "));
+        return format!("({})", self.intervals.iter().map(|&f| format!("[{}, {}]", f.0, f.1)).collect::<Vec<String>>().join(" ∪ "));
+    }
+}
+
+impl Clone for Interval {
+    fn clone(&self) -> Interval {
+        Interval { intervals: self.intervals.clone() }
     }
 }
 

@@ -1,5 +1,7 @@
 from typing import Optional, Sequence, Tuple
 
+__version__: str
+
 def merge_intervals(intervals: Sequence[Tuple[int, int]]) -> Sequence[Tuple[int, int]]:
     """A function that merges overlapping intervals in a sequence."""
 

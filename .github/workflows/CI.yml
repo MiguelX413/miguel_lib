@@ -15,6 +15,13 @@ jobs:
         manylinux: auto
         command: build
         args: --release -o dist
+    - name: Build for musl x86_64 Linux
+      uses: messense/maturin-action@v1
+      with:
+        manylinux: auto
+        command: build
+        args: --release -o dist
+        target: x86_64-unknown-linux-musl
     - name: Build for i686 Linux
       uses: messense/maturin-action@v1
       with:
@@ -22,6 +29,13 @@ jobs:
         command: build
         args: --release -o dist
         target: i686-unknown-linux-gnu
+    - name: Build for musl i686 Linux
+      uses: messense/maturin-action@v1
+      with:
+        manylinux: auto
+        command: build
+        args: --release -o dist
+        target: i686-unknown-linux-musl
     - name: Set up QEMU
       id: qemu
       uses: docker/setup-qemu-action@v1
@@ -42,6 +56,13 @@ jobs:
         command: build
         args: --release -o dist
         target: armv7-unknown-linux-gnueabihf
+    - name: Build for musl armv7 Linux
+      uses: messense/maturin-action@v1
+      with:
+        manylinux: auto
+        command: build
+        args: --release -o dist
+        target: armv7-unknown-linux-musleabihf
     - name: Build for ppc64le Linux
       uses: messense/maturin-action@v1
       with:
@@ -49,6 +70,13 @@ jobs:
         command: build
         args: --release -o dist
         target: powerpc64le-unknown-linux-gnu
+    - name: Build for musl ppc64le Linux
+      uses: messense/maturin-action@v1
+      with:
+        manylinux: auto
+        command: build
+        args: --release -o dist
+        target: powerpc64le-unknown-linux-musl
     - name: Build for s390x Linux
       uses: messense/maturin-action@v1
       with:
@@ -56,6 +84,13 @@ jobs:
         command: build
         args: --release -o dist
         target: s390x-unknown-linux-gnu
+    - name: Build for musl s390x Linux
+      uses: messense/maturin-action@v1
+      with:
+        manylinux: auto
+        command: build
+        args: --release -o dist
+        target: s390x-unknown-linux-musl
     - name: Upload wheels
       uses: actions/upload-artifact@v2
       with:

@@ -69,6 +69,20 @@ jobs:
         command: build
         args: --release -o dist
         target: armv7-unknown-linux-musleabihf
+    - name: Build for ppc64 Linux
+      uses: messense/maturin-action@v1
+      with:
+        manylinux: auto
+        command: build
+        args: --release -o dist
+        target: powerpc64-unknown-linux-gnu
+    - name: Build for musl ppc64 Linux
+      uses: messense/maturin-action@v1
+      with:
+        manylinux: auto
+        command: build
+        args: --release -o dist
+        target: powerpc64-unknown-linux-musl
     - name: Build for ppc64le Linux
       uses: messense/maturin-action@v1
       with:

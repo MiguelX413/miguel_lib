@@ -49,7 +49,12 @@ impl Interval {
             None => Interval { intervals: vec![] }
         }
     }
-    fn union_update(&mut self, other: Interval) {
+    fn union(&self, other: &Interval) -> Interval {
+        let mut output = self.clone();
+        output.union_update(other);
+        return output;
+    }
+    fn union_update(&mut self, other: &Interval) {
         self.intervals.append(&mut other.intervals.clone());
         mut_merge_intervals(&mut self.intervals);
     }

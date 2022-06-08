@@ -16,13 +16,6 @@ fn mut_merge_intervals(intervals: &mut Vec<(i32, i32)>) {
     intervals.truncate(index + 1);
 }
 
-/// A function that merges overlapping intervals in a sequence.
-#[pyfunction]
-fn merge_intervals(mut intervals: Vec<(i32, i32)>) -> Vec<(i32, i32)> {
-    mut_merge_intervals(&mut intervals);
-    return intervals;
-}
-
 /// A function that returns the UTF-16 length of a string.
 #[pyfunction]
 fn utf16len(string: &str) -> usize {
@@ -98,7 +91,6 @@ impl Clone for Interval {
 /// A Python module implemented in Rust.
 #[pymodule]
 fn miguel_lib(_py: Python, m: &PyModule) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(merge_intervals, m)?)?;
     m.add_function(wrap_pyfunction!(utf16len, m)?)?;
     m.add_class::<Interval>()?;
     m.add("__version__", env!("CARGO_PKG_VERSION"))?;

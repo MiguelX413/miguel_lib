@@ -46,7 +46,7 @@ impl Interval {
                 mut_merge_intervals(&mut input);
                 Interval { intervals: input }
             }
-            None => Interval { intervals: vec![] }
+            None => Interval { intervals: vec![] },
         }
     }
     fn union(&self, other: &Interval) -> Interval {
@@ -62,10 +62,24 @@ impl Interval {
         return self.intervals.iter().any(|&f| f.0 <= item && item <= f.1);
     }
     fn __repr__(&self) -> String {
-        return format!("Interval([{}])", self.intervals.iter().map(|&f| format!("({}, {})", f.0, f.1)).collect::<Vec<String>>().join(", "));
+        return format!(
+            "Interval([{}])",
+            self.intervals
+                .iter()
+                .map(|&f| format!("({}, {})", f.0, f.1))
+                .collect::<Vec<String>>()
+                .join(", ")
+        );
     }
     fn __str__(&self) -> String {
-        return format!("({})", self.intervals.iter().map(|&f| format!("[{}, {}]", f.0, f.1)).collect::<Vec<String>>().join(" ∪ "));
+        return format!(
+            "({})",
+            self.intervals
+                .iter()
+                .map(|&f| format!("[{}, {}]", f.0, f.1))
+                .collect::<Vec<String>>()
+                .join(" ∪ ")
+        );
     }
     fn __or__(&self, other: &Interval) -> Interval {
         return self.union(other);
@@ -77,7 +91,9 @@ impl Interval {
 
 impl Clone for Interval {
     fn clone(&self) -> Interval {
-        Interval { intervals: self.intervals.clone() }
+        Interval {
+            intervals: self.intervals.clone(),
+        }
     }
 }
 

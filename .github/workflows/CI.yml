@@ -42,13 +42,6 @@ jobs:
         command: build
         args: --release -o dist
         target: armv7-unknown-linux-gnueabihf
-    - name: Build for riscv64 Linux
-      uses: messense/maturin-action@v1
-      with:
-        manylinux: auto
-        command: build
-        args: --release -o dist
-        target: riscv64gc-unknown-linux-gnu
     - name: Build for ppc64le Linux
       uses: messense/maturin-action@v1
       with:
@@ -56,13 +49,6 @@ jobs:
         command: build
         args: --release -o dist
         target: powerpc64le-unknown-linux-gnu
-    - name: Build for mips64 Linux
-      uses: messense/maturin-action@v1
-      with:
-        manylinux: auto
-        command: build
-        args: --release -o dist
-        target: mips64-unknown-linux-gnuabi64
     - name: Build for mips64el Linux
       uses: messense/maturin-action@v1
       with:

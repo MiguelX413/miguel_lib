@@ -6,20 +6,35 @@ on:
 
 jobs:
   linux:
+    strategy:
+      matrix:
+        include:
+          - pyversion: "3.7"
+            args: "--release -o dist"
+          - pyversion: "pypy3.7"
+            args: "-i pypy3.7 --release --no-sdist -o dist"
+          - pyversion: "pypy3.8"
+            args: "-i pypy3.8 --release --no-sdist -o dist"
+          - pyversion: "pypy3.9"
+            args: "-i pypy3.9 --release --no-sdist -o dist"
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.pyversion }}
     - name: build for x86_64-unknown-linux-gnu
       uses: messense/maturin-action@v1
       with:
         manylinux: auto
         command: build
-        args: --release -o dist
+        args: ${{ matrix.args }}
     - name: Upload wheels
       uses: actions/upload-artifact@v2
       with:
         name: wheels
         path: dist
+
   linux-extra:
     strategy:
       matrix:
@@ -39,6 +54,7 @@ jobs:
       with:
         name: wheels
         path: dist
+
   linux-qemu:
     strategy:
       matrix:
@@ -68,18 +84,30 @@ jobs:
   windows:
     strategy:
       matrix:
+        pyversion: ['3.7']
         arch: [x64, x86]
+        args: ['--release --no-sdist -o dist']
+        include:
+          - pyversion: 'pypy3.7'
+            arch: x64
+            args: '-i pypy3 --release --no-sdist -o dist'
+          - pyversion: 'pypy3.8'
+            arch: x64
+            args: '-i pypy3 --release --no-sdist -o dist'
+          - pyversion: 'pypy3.9'
+            arch: x64
+            args: '-i pypy3 --release --no-sdist -o dist'
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v4
       with:
-        python-version: '3.7'
+        python-version: ${{ matrix.pyversion }}
         architecture: ${{ matrix.arch }}
     - uses: messense/maturin-action@v1
       with:
         command: build
-        args: --release --no-sdist -o dist
+        args: ${{ matrix.args }}
         target: ${{ matrix.arch }}
     - name: Upload wheels
       uses: actions/upload-artifact@v2

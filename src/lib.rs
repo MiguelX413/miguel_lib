@@ -1,3 +1,4 @@
+use pyo3::exceptions::PyValueError;
 use std::cmp::max;
 
 use pyo3::prelude::*;
@@ -31,13 +32,19 @@ struct Interval {
 #[pymethods]
 impl Interval {
     #[new]
-    fn new(interval_list: Option<Vec<(i32, i32)>>) -> Self {
+    fn py_new(interval_list: Option<Vec<(i32, i32)>>) -> PyResult<Self> {
         match interval_list {
             Some(mut f) => {
-                merge_intervals(&mut f);
-                Interval { intervals: f }
+                if f.iter().any(|&subinterval| subinterval.0 > subinterval.1) {
+                    Err(PyValueError::new_err(
+                        "Start point of sub-interval cannot be greater than its end point",
+                    ))
+                } else {
+                    merge_intervals(&mut f);
+                    Ok(Interval { intervals: f })
+                }
             }
-            None => Interval { intervals: vec![] },
+            None => Ok(Interval { intervals: vec![] }),
         }
     }
     fn union(&self, other: &Interval) -> Interval {

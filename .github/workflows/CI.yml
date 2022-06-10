@@ -116,13 +116,27 @@ jobs:
         path: dist
 
   macos:
+    strategy:
+      matrix:
+        include:
+          - pyversion: "3.7"
+            args: "--release --no-sdist -o dist --universal2"
+          - pyversion: "pypy3.7"
+            args: "-i pypy3.7 --release --no-sdist -o dist --universal2"
+          - pyversion: "pypy3.8"
+            args: "-i pypy3.8 --release --no-sdist -o dist --universal2"
+          - pyversion: "pypy3.9"
+            args: "-i pypy3.9 --release --no-sdist -o dist --universal2"
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
+    - uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.pyversion }}
     - uses: messense/maturin-action@v1
       with:
         command: build
-        args: --release --no-sdist -o dist --universal2
+        args: ${{ matrix.args }}
     - name: Upload wheels
       uses: actions/upload-artifact@v2
       with:

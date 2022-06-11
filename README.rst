@@ -23,7 +23,7 @@ Random crap I like to use
 
 .. code-block:: console
 
-    $ pip3 install miguel_lib
+    $ pip install miguel_lib
 
 **miguel_lib**
 

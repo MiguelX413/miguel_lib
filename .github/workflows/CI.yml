@@ -9,46 +9,48 @@ jobs:
     strategy:
       matrix:
         include:
-          - pyversion: "3.7"
+          - target: "x86_64-unknown-linux-gnu"
+            pyversion: "3.7"
             args: "--release -o dist"
-          - pyversion: "pypy3.7"
+          - target: "x86_64-unknown-linux-gnu"
+            pyversion: "pypy3.7"
             args: "-i pypy3.7 --release --no-sdist -o dist"
-          - pyversion: "pypy3.8"
+          - target: "x86_64-unknown-linux-gnu"
+            pyversion: "pypy3.8"
             args: "-i pypy3.8 --release --no-sdist -o dist"
-          - pyversion: "pypy3.9"
+          - target: "x86_64-unknown-linux-gnu"
+            pyversion: "pypy3.9"
             args: "-i pypy3.9 --release --no-sdist -o dist"
+          - target: "x86_64-unknown-linux-musl"
+            pyversion: "3.7"
+            args: "--release --no-sdist -o dist"
+          - target: "i686-unknown-linux-gnu"
+            pyversion: "3.7"
+            args: "--release --no-sdist -o dist"
+          - target: "i686-unknown-linux-gnu"
+            pyversion: "pypy3.7"
+            args: "-i pypy3.7 --release --no-sdist -o dist"
+          - target: "i686-unknown-linux-gnu"
+            pyversion: "pypy3.8"
+            args: "-i pypy3.8 --release --no-sdist -o dist"
+          - target: "i686-unknown-linux-gnu"
+            pyversion: "pypy3.9"
+            args: "-i pypy3.9 --release --no-sdist -o dist"
+          - target: "i686-unknown-linux-musl"
+            pyversion: "3.7"
+            args: "--release --no-sdist -o dist"
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.pyversion }}
-    - name: build for x86_64-unknown-linux-gnu
-      uses: messense/maturin-action@v1
+    - uses: messense/maturin-action@v1
       with:
         manylinux: auto
         command: build
         args: ${{ matrix.args }}
-    - name: Upload wheels
-      uses: actions/upload-artifact@v2
-      with:
-        name: wheels
-        path: dist
-
-  linux-extra:
-    strategy:
-      matrix:
-        targets: [x86_64-unknown-linux-musl, i686-unknown-linux-gnu, i686-unknown-linux-musl]
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: build for ${{ matrix.targets }}
-      uses: messense/maturin-action@v1
-      with:
-        manylinux: auto
-        command: build
-        args: --release --no-sdist -o dist
-        target: ${{ matrix.targets }}
+        target: ${{ matrix.target }}
     - name: Upload wheels
       uses: actions/upload-artifact@v2
       with:
@@ -58,7 +60,7 @@ jobs:
   linux-qemu:
     strategy:
       matrix:
-        targets: [aarch64-unknown-linux-gnu, aarch64-unknown-linux-musl, armv7-unknown-linux-gnueabihf, armv7-unknown-linux-musleabihf, powerpc64-unknown-linux-gnu, powerpc64le-unknown-linux-gnu, s390x-unknown-linux-gnu]
+        target: [aarch64-unknown-linux-gnu, aarch64-unknown-linux-musl, armv7-unknown-linux-gnueabihf, armv7-unknown-linux-musleabihf, powerpc64-unknown-linux-gnu, powerpc64le-unknown-linux-gnu, s390x-unknown-linux-gnu]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -68,13 +70,12 @@ jobs:
       with:
         image: tonistiigi/binfmt:latest
         platforms: all
-    - name: Build for ${{ matrix.targets }}
-      uses: messense/maturin-action@v1
+    - uses: messense/maturin-action@v1
       with:
         manylinux: auto
         command: build
         args: --release --no-sdist -o dist
-        target: ${{ matrix.targets }}
+        target: ${{ matrix.target }}
     - name: Upload wheels
       uses: actions/upload-artifact@v2
       with:
@@ -147,7 +148,7 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     if: "startsWith(github.ref, 'refs/tags/')"
-    needs: [ macos, windows, linux, linux-extra, linux-qemu ]
+    needs: [ macos, windows, linux, linux-qemu ]
     steps:
       - uses: actions/download-artifact@v2
         with:

@@ -4,9 +4,26 @@ build-backend = "maturin"
 
 [project]
 name = "miguel_lib"
+version = "0.2.0"
+description = "Random crap I like to use"
+readme = "README.md"
 requires-python = ">=3.7"
+license = {file = "LICENSE"}
+authors = [
+  {email = "lbpgaming27@gmail.com"},
+  {name = "MiguelX413"}
+]
 classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: GNU Lesser General Public License v2 or later (LGPLv2+)",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
     "Programming Language :: Rust",
     "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
 ]
 
+[project.urls]
+repository = "https://github.com/MiguelX413/miguel_lib"
+mirror-repo = "https://gitlab.com/MiguelX413/miguel_lib"

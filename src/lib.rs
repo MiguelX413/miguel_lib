@@ -2,6 +2,7 @@ use pyo3::exceptions::PyValueError;
 use std::cmp::max;
 
 use pyo3::prelude::*;
+use pyo3::types::PyTuple;
 
 fn merge_intervals(intervals: &mut Vec<(i32, i32)>) {
     intervals.sort_by_key(|&a| a.0);
@@ -47,14 +48,22 @@ impl Interval {
             None => Ok(Interval { intervals: vec![] }),
         }
     }
-    fn union(&self, other: &Interval) -> Interval {
+    #[args(other = "*")]
+    fn union(&self, other: &PyTuple) -> PyResult<Interval> {
         let mut output = self.clone();
-        output.union_update(other);
-        return output;
+        output.union_update(other)?;
+        Ok(output)
     }
-    fn union_update(&mut self, other: &Interval) {
-        self.intervals.append(&mut other.intervals.clone());
-        merge_intervals(&mut self.intervals);
+    #[args(other = "*")]
+    fn union_update(&mut self, other: &PyTuple) -> PyResult<()> {
+        let inputs: Vec<Interval> = other.extract()?;
+        inputs
+            .iter()
+            .for_each(|f| self.intervals.append(&mut f.intervals.clone()));
+        if inputs.len() > 0 {
+            merge_intervals(&mut self.intervals);
+        }
+        Ok(())
     }
     fn __contains__(&self, item: i32) -> bool {
         return self.intervals.iter().any(|&f| f.0 <= item && item <= f.1);
@@ -80,10 +89,13 @@ impl Interval {
         );
     }
     fn __or__(&self, other: &Interval) -> Interval {
-        return self.union(other);
+        let mut output = self.clone();
+        output.__ior__(other);
+        return output;
     }
     fn __ior__(&mut self, other: &Interval) {
-        self.union_update(other);
+        self.intervals.append(&mut other.intervals.clone());
+        merge_intervals(&mut self.intervals);
     }
 }
 

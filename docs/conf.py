@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # Configuration file for the Sphinx documentation builder.
 #
 # This file only contains a selection of the most common options. For a full
@@ -12,17 +13,21 @@
 #
 # import os
 # import sys
+from datetime import date
+import miguel_lib
+
 # sys.path.insert(0, os.path.abspath('.'))
 
+import miguel_lib
 
 # -- Project information -----------------------------------------------------
 
 project = "miguel_lib"
-copyright = "2022, MiguelX413"
+copyright = f"{date.today():%Y}, MiguelX413"
 author = "MiguelX413"
 
 # The full version, including alpha/beta/rc tags
-release = "0.2.1"
+release = miguel_lib.__version__
 
 
 # -- General configuration ---------------------------------------------------

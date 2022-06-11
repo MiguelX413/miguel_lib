@@ -41,7 +41,7 @@ jobs:
             args: "--release --no-sdist -o dist"
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.pyversion }}
@@ -63,7 +63,7 @@ jobs:
         target: [aarch64-unknown-linux-gnu, aarch64-unknown-linux-musl, armv7-unknown-linux-gnueabihf, armv7-unknown-linux-musleabihf, powerpc64-unknown-linux-gnu, powerpc64le-unknown-linux-gnu, s390x-unknown-linux-gnu]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up QEMU
       id: qemu
       uses: docker/setup-qemu-action@v1
@@ -100,7 +100,7 @@ jobs:
             args: '-i pypy3 --release --no-sdist -o dist'
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.pyversion }}
@@ -130,7 +130,7 @@ jobs:
             args: "-i pypy3.9 --release --no-sdist -o dist --universal2"
     runs-on: macos-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.pyversion }}

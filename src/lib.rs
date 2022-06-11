@@ -21,7 +21,7 @@ fn merge_intervals(intervals: &mut Vec<(i32, i32)>) {
 /// A function that returns the UTF-16 length of a string.
 #[pyfunction]
 fn utf16len(string: &str) -> usize {
-    return string.chars().map(|char| char.len_utf16()).sum();
+    string.chars().map(|char| char.len_utf16()).sum()
 }
 
 /// A class used to represent intervals.
@@ -60,38 +60,38 @@ impl Interval {
         inputs
             .iter()
             .for_each(|f| self.intervals.append(&mut f.intervals.clone()));
-        if inputs.len() > 0 {
+        if !inputs.is_empty() {
             merge_intervals(&mut self.intervals);
         }
         Ok(())
     }
     fn __contains__(&self, item: i32) -> bool {
-        return self.intervals.iter().any(|&f| f.0 <= item && item <= f.1);
+        self.intervals.iter().any(|&f| f.0 <= item && item <= f.1)
     }
     fn __repr__(&self) -> String {
-        return format!(
+        format!(
             "Interval([{}])",
             self.intervals
                 .iter()
                 .map(|&f| format!("({}, {})", f.0, f.1))
                 .collect::<Vec<String>>()
                 .join(", ")
-        );
+        )
     }
     fn __str__(&self) -> String {
-        return format!(
+        format!(
             "({})",
             self.intervals
                 .iter()
                 .map(|&f| format!("[{}, {}]", f.0, f.1))
                 .collect::<Vec<String>>()
                 .join(" ∪ ")
-        );
+        )
     }
     fn __or__(&self, other: &Interval) -> Interval {
         let mut output = self.clone();
         output.__ior__(other);
-        return output;
+        output
     }
     fn __ior__(&mut self, other: &Interval) {
         self.intervals.append(&mut other.intervals.clone());

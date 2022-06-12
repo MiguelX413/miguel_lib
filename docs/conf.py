@@ -38,7 +38,25 @@ release = miguel_lib.__version__
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx_autodoc_typehints",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.extlinks",
 ]
+
+
+autodoc_default_options = {
+    "show-inheritance": True,
+    "members": True,
+    "member-order": "bysource",
+    "undoc-members": False,
+}
+
+autodoc_typehints = "signature"
+
+
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+}
+
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]

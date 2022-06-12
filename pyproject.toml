@@ -30,5 +30,5 @@ classifiers = [
 ]
 
 [project.urls]
-repository = "https://github.com/MiguelX413/miguel_lib"
-mirror-repo = "https://gitlab.com/MiguelX413/miguel_lib"
+GitHub = "https://github.com/MiguelX413/miguel_lib"
+GitLab = "https://gitlab.com/MiguelX413/miguel_lib"

@@ -10,6 +10,8 @@ Welcome to miguel_lib's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   module/Interval
+
 
 
 Indices and tables

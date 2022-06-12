@@ -8,10 +8,10 @@ version = "0.2.1"
 description = "Random crap I like to use"
 readme = "README.rst"
 requires-python = ">=3.7"
-license = {file = "LICENSE"}
+license = { file = "LICENSE" }
 authors = [
-  {email = "lbpgaming27@gmail.com"},
-  {name = "MiguelX413"}
+    { email = "lbpgaming27@gmail.com" },
+    { name = "MiguelX413" }
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -28,6 +28,12 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3 :: Only",
+]
+
+[project.optional-dependencies]
+docs = [
+    "sphinx ~= 5.0.1",
+    "sphinx-autodoc-typehints ~= 1.18.3",
 ]
 
 [project.urls]

@@ -4,14 +4,13 @@ build-backend = "maturin"
 
 [project]
 name = "miguel_lib"
-version = "0.2.1"
 description = "Random crap I like to use"
 readme = "README.rst"
 requires-python = ">=3.7"
-license = {file = "LICENSE"}
+license = { file = "LICENSE" }
 authors = [
-  {email = "lbpgaming27@gmail.com"},
-  {name = "MiguelX413"}
+    { email = "lbpgaming27@gmail.com" },
+    { name = "MiguelX413" }
 ]
 classifiers = [
     "Development Status :: 4 - Beta",

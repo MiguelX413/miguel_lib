@@ -57,9 +57,8 @@ impl Interval {
     #[args(other = "*")]
     fn union_update(&mut self, other: &PyTuple) -> PyResult<()> {
         let inputs: Vec<Interval> = other.extract()?;
-        inputs
-            .iter()
-            .for_each(|f| self.intervals.append(&mut f.intervals.clone()));
+        self.intervals
+            .extend(inputs.iter().flat_map(|f| &f.intervals));
         if !inputs.is_empty() {
             merge_intervals(&mut self.intervals);
         }

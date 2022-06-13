@@ -20,17 +20,29 @@ fn merge_intervals(intervals: &mut Vec<(i32, i32)>) {
 
 #[pyfunction]
 fn match_indices(string: &str, substring: &str) -> Vec<usize> {
+    let mut byte_index: usize = 0;
+    let mut len: usize = 0;
     string
         .match_indices(substring)
-        .map(|f| string[..f.0].chars().count())
+        .map(|f| {
+            len += string[byte_index..f.0].chars().count();
+            byte_index = f.0;
+            len
+        })
         .collect::<Vec<usize>>()
 }
 
 #[pyfunction]
 fn match_utf16_indices(string: &str, substring: &str) -> Vec<usize> {
+    let mut byte_index: usize = 0;
+    let mut len: usize = 0;
     string
         .match_indices(substring)
-        .map(|f| utf16len(&string[..f.0]))
+        .map(|f| {
+            len += utf16len(&string[byte_index..f.0]);
+            byte_index = f.0;
+            len
+        })
         .collect::<Vec<usize>>()
 }
 

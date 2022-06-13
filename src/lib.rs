@@ -147,6 +147,7 @@ impl Clone for Interval {
 #[pymodule]
 fn miguel_lib(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(match_indices, m)?)?;
+    m.add_function(wrap_pyfunction!(match_utf16_indices, m)?)?;
     m.add_function(wrap_pyfunction!(match_byte_indices, m)?)?;
     m.add_function(wrap_pyfunction!(utf16len, m)?)?;
     m.add_class::<Interval>()?;

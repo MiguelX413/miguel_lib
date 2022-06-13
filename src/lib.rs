@@ -18,6 +18,30 @@ fn merge_intervals(intervals: &mut Vec<(i32, i32)>) {
     intervals.truncate(index + 1);
 }
 
+#[pyfunction]
+fn match_indices(string: &str, substring: &str) -> Vec<usize> {
+    string
+        .match_indices(substring)
+        .map(|f| string[..f.0].chars().count())
+        .collect::<Vec<usize>>()
+}
+
+#[pyfunction]
+fn match_utf16_indices(string: &str, substring: &str) -> Vec<usize> {
+    string
+        .match_indices(substring)
+        .map(|f| utf16len(&string[..f.0]))
+        .collect::<Vec<usize>>()
+}
+
+#[pyfunction]
+fn match_byte_indices(string: &str, substring: &str) -> Vec<usize> {
+    string
+        .match_indices(substring)
+        .map(|f| f.0)
+        .collect::<Vec<usize>>()
+}
+
 /// A function that returns the UTF-16 length of a string.
 #[pyfunction]
 fn utf16len(string: &str) -> usize {
@@ -110,6 +134,8 @@ impl Clone for Interval {
 /// A Python module implemented in Rust.
 #[pymodule]
 fn miguel_lib(_py: Python, m: &PyModule) -> PyResult<()> {
+    m.add_function(wrap_pyfunction!(match_indices, m)?)?;
+    m.add_function(wrap_pyfunction!(match_byte_indices, m)?)?;
     m.add_function(wrap_pyfunction!(utf16len, m)?)?;
     m.add_class::<Interval>()?;
     m.add("__version__", env!("CARGO_PKG_VERSION"))?;

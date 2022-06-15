@@ -18,6 +18,7 @@ fn merge_intervals(intervals: &mut Vec<(i32, i32)>) {
     intervals.truncate(index + 1);
 }
 
+/// Returns a list of the UTF-8 indices of disjoint matches, from start to end.
 #[pyfunction]
 fn match_indices(string: &str, substring: &str) -> Vec<usize> {
     let mut byte_index: usize = 0;
@@ -32,6 +33,7 @@ fn match_indices(string: &str, substring: &str) -> Vec<usize> {
         .collect::<Vec<usize>>()
 }
 
+/// Returns a list of the UTF-16 indices of disjoint matches, from start to end.
 #[pyfunction]
 fn match_utf16_indices(string: &str, substring: &str) -> Vec<usize> {
     let mut byte_index: usize = 0;
@@ -46,6 +48,7 @@ fn match_utf16_indices(string: &str, substring: &str) -> Vec<usize> {
         .collect::<Vec<usize>>()
 }
 
+/// Returns a list of the byte indices of disjoint matches, from start to end.
 #[pyfunction]
 fn match_byte_indices(string: &str, substring: &str) -> Vec<usize> {
     string
@@ -54,6 +57,7 @@ fn match_byte_indices(string: &str, substring: &str) -> Vec<usize> {
         .collect::<Vec<usize>>()
 }
 
+/// Returns a list of the UTF-8 indices of disjoint matches, from end to start.
 #[pyfunction]
 fn rmatch_indices(string: &str, substring: &str) -> Vec<usize> {
     let mut byte_index: usize = 0;
@@ -73,6 +77,7 @@ fn rmatch_indices(string: &str, substring: &str) -> Vec<usize> {
     output
 }
 
+/// Returns a list of the UTF-16 indices of disjoint matches, from end to start.
 #[pyfunction]
 fn rmatch_utf16_indices(string: &str, substring: &str) -> Vec<usize> {
     let mut byte_index: usize = 0;
@@ -92,6 +97,7 @@ fn rmatch_utf16_indices(string: &str, substring: &str) -> Vec<usize> {
     output
 }
 
+/// Returns a list of the byte indices of disjoint matches, from end to start.
 #[pyfunction]
 fn rmatch_byte_indices(string: &str, substring: &str) -> Vec<usize> {
     string

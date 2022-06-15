@@ -54,6 +54,52 @@ fn match_byte_indices(string: &str, substring: &str) -> Vec<usize> {
         .collect::<Vec<usize>>()
 }
 
+#[pyfunction]
+fn rmatch_indices(string: &str, substring: &str) -> Vec<usize> {
+    let mut byte_index: usize = 0;
+    let mut len: usize = 0;
+    let mut output = string
+        .rmatch_indices(substring)
+        .collect::<Vec<(usize, &str)>>()
+        .iter()
+        .rev()
+        .map(|f| {
+            len += string[byte_index..f.0].chars().count();
+            byte_index = f.0;
+            len
+        })
+        .collect::<Vec<usize>>();
+    output.reverse();
+    output
+}
+
+#[pyfunction]
+fn rmatch_utf16_indices(string: &str, substring: &str) -> Vec<usize> {
+    let mut byte_index: usize = 0;
+    let mut len: usize = 0;
+    let mut output = string
+        .rmatch_indices(substring)
+        .collect::<Vec<(usize, &str)>>()
+        .iter()
+        .rev()
+        .map(|f| {
+            len += utf16len(&string[byte_index..f.0]);
+            byte_index = f.0;
+            len
+        })
+        .collect::<Vec<usize>>();
+    output.reverse();
+    output
+}
+
+#[pyfunction]
+fn rmatch_byte_indices(string: &str, substring: &str) -> Vec<usize> {
+    string
+        .rmatch_indices(substring)
+        .map(|f| f.0)
+        .collect::<Vec<usize>>()
+}
+
 /// A function that returns the UTF-16 length of a string.
 #[pyfunction]
 fn utf16len(string: &str) -> usize {
@@ -149,6 +195,9 @@ fn miguel_lib(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(match_indices, m)?)?;
     m.add_function(wrap_pyfunction!(match_utf16_indices, m)?)?;
     m.add_function(wrap_pyfunction!(match_byte_indices, m)?)?;
+    m.add_function(wrap_pyfunction!(rmatch_indices, m)?)?;
+    m.add_function(wrap_pyfunction!(rmatch_utf16_indices, m)?)?;
+    m.add_function(wrap_pyfunction!(rmatch_byte_indices, m)?)?;
     m.add_function(wrap_pyfunction!(utf16len, m)?)?;
     m.add_class::<Interval>()?;
     m.add("__version__", env!("CARGO_PKG_VERSION"))?;

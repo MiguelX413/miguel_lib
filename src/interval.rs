@@ -33,14 +33,20 @@ impl Interval {
                     Err(PyValueError::new_err("Sub-interval points cannot be NaN"))
                 } else {
                     if f.iter()
-                        .any(|&sub_interval| sub_interval.1 > sub_interval.2)
+                        .any(|f| (f.0 && f.1.is_infinite()) || (f.3 && f.2.is_infinite()))
                     {
-                        Err(PyValueError::new_err(
-                            "Start point of sub-interval cannot be greater than its end point",
-                        ))
+                        Err(PyValueError::new_err("Interval cannot contain inf"))
                     } else {
-                        merge_sub_intervals(&mut f);
-                        Ok(Interval { sub_intervals: f })
+                        if f.iter()
+                            .any(|&sub_interval| sub_interval.1 > sub_interval.2)
+                        {
+                            Err(PyValueError::new_err(
+                                "Start point of sub-interval cannot be greater than its end point",
+                            ))
+                        } else {
+                            merge_sub_intervals(&mut f);
+                            Ok(Interval { sub_intervals: f })
+                        }
                     }
                 }
             }

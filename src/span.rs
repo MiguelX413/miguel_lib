@@ -30,7 +30,7 @@ impl Span {
     fn py_new(sub_spans: Option<Vec<(i32, i32)>>) -> PyResult<Self> {
         match sub_spans {
             Some(mut f) => {
-                if f.iter().any(|&subspan| subspan.0 > subspan.1) {
+                if f.iter().any(|&sub_span| sub_span.0 > sub_span.1) {
                     Err(PyValueError::new_err(
                         "Start point of sub-span cannot be greater than its end point",
                     ))

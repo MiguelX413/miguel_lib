@@ -1,7 +1,9 @@
+mod interval;
 mod span;
 
-use pyo3::prelude::*;
+use crate::interval::Interval;
 use crate::span::Span;
+use pyo3::prelude::*;
 
 /// Returns a list of the UTF-8 indices of disjoint matches, from start to end.
 #[pyfunction]
@@ -108,6 +110,7 @@ fn miguel_lib(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(rmatch_byte_indices, m)?)?;
     m.add_function(wrap_pyfunction!(utf16len, m)?)?;
     m.add_class::<Span>()?;
+    m.add_class::<Interval>()?;
     m.add("__version__", env!("CARGO_PKG_VERSION"))?;
     Ok(())
 }

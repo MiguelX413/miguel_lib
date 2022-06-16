@@ -31,13 +31,12 @@ impl Span {
         match sub_spans {
             Some(mut f) => {
                 if f.iter().any(|&sub_span| sub_span.0 > sub_span.1) {
-                    Err(PyValueError::new_err(
+                    return Err(PyValueError::new_err(
                         "Start point of sub-span cannot be greater than its end point",
-                    ))
-                } else {
-                    merge_sub_spans(&mut f);
-                    Ok(Span { sub_spans: f })
+                    ));
                 }
+                merge_sub_spans(&mut f);
+                Ok(Span { sub_spans: f })
             }
             None => Ok(Span { sub_spans: vec![] }),
         }

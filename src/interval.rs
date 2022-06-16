@@ -111,20 +111,23 @@ impl Interval {
         )
     }
     fn __str__(&self) -> String {
-        format!(
-            "({})",
+        if !self.sub_intervals.is_empty() {
             self.sub_intervals
                 .iter()
-                .map(|&f| format!(
-                    "{}{}, {}{}",
-                    a_else_b(f.0, "[", "("),
-                    f.1,
-                    f.2,
-                    a_else_b(f.3, "]", ")"),
-                ))
+                .map(|&f| {
+                    format!(
+                        "{}{}, {}{}",
+                        a_else_b(f.0, "[", "("),
+                        f.1,
+                        f.2,
+                        a_else_b(f.3, "]", ")"),
+                    )
+                })
                 .collect::<Vec<String>>()
                 .join(" ∪ ")
-        )
+        } else {
+            "∅".to_string()
+        }
     }
     fn __or__(&self, other: &Interval) -> Interval {
         let mut output = self.clone();

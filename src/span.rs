@@ -6,7 +6,7 @@ use pyo3::types::PyTuple;
 
 fn merge_sub_spans(sub_spans: &mut Vec<(i32, i32)>) {
     sub_spans.sort_by_key(|&a| a.0);
-    let mut index: usize = 0;
+    let mut index = 0;
     for i in 1..sub_spans.len() {
         if sub_spans[index].1 >= sub_spans[i].0 - 1 {
             sub_spans[index].1 = max(sub_spans[index].1, sub_spans[i].1);
@@ -44,15 +44,15 @@ impl Span {
             None => Ok(Span { sub_spans: vec![] }),
         }
     }
-    #[args(other = "*")]
-    fn union(&self, other: &PyTuple) -> PyResult<Span> {
+    #[args(others = "*")]
+    fn union(&self, others: &PyTuple) -> PyResult<Span> {
         let mut output = self.clone();
-        output.union_update(other)?;
+        output.union_update(others)?;
         Ok(output)
     }
-    #[args(other = "*")]
-    fn union_update(&mut self, other: &PyTuple) -> PyResult<()> {
-        let inputs: Vec<Span> = other.extract()?;
+    #[args(others = "*")]
+    fn union_update(&mut self, others: &PyTuple) -> PyResult<()> {
+        let inputs: Vec<Span> = others.extract()?;
         self.sub_spans
             .extend(inputs.iter().flat_map(|f| &f.sub_spans));
         if !inputs.is_empty() {

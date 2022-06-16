@@ -6,7 +6,7 @@ use pyo3::types::PyTuple;
 
 fn merge_sub_intervals(sub_intervals: &mut Vec<(bool, f64, f64, bool)>) {
     sub_intervals.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
-    let mut index: usize = 0;
+    let mut index = 0;
     for i in 1..sub_intervals.len() {
         if (sub_intervals[index].2 > sub_intervals[i].1)
             || ((sub_intervals[index].2 == sub_intervals[i].1)
@@ -73,15 +73,15 @@ impl Interval {
             }),
         }
     }
-    #[args(other = "*")]
-    fn union(&self, other: &PyTuple) -> PyResult<Interval> {
+    #[args(others = "*")]
+    fn union(&self, others: &PyTuple) -> PyResult<Interval> {
         let mut output = self.clone();
-        output.union_update(other)?;
+        output.union_update(others)?;
         Ok(output)
     }
-    #[args(other = "*")]
-    fn union_update(&mut self, other: &PyTuple) -> PyResult<()> {
-        let inputs: Vec<Interval> = other.extract()?;
+    #[args(others = "*")]
+    fn union_update(&mut self, others: &PyTuple) -> PyResult<()> {
+        let inputs: Vec<Interval> = others.extract()?;
         self.sub_intervals
             .extend(inputs.iter().flat_map(|f| &f.sub_intervals));
         if !inputs.is_empty() {

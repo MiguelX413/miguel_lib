@@ -9,8 +9,8 @@ use pyo3::prelude::*;
 /// Returns a list of the UTF-8 indices of disjoint matches, from start to end.
 #[pyfunction]
 fn match_indices(string: &str, substring: &str) -> Vec<usize> {
-    let mut byte_index: usize = 0;
-    let mut len: usize = 0;
+    let mut byte_index = 0;
+    let mut len = 0;
     string
         .match_indices(substring)
         .map(|f| {
@@ -24,8 +24,8 @@ fn match_indices(string: &str, substring: &str) -> Vec<usize> {
 /// Returns a list of the UTF-16 indices of disjoint matches, from start to end.
 #[pyfunction]
 fn match_utf16_indices(string: &str, substring: &str) -> Vec<usize> {
-    let mut byte_index: usize = 0;
-    let mut len: usize = 0;
+    let mut byte_index = 0;
+    let mut len = 0;
     string
         .match_indices(substring)
         .map(|f| {
@@ -48,8 +48,8 @@ fn match_byte_indices(string: &str, substring: &str) -> Vec<usize> {
 /// Returns a list of the UTF-8 indices of disjoint matches, from end to start.
 #[pyfunction]
 fn rmatch_indices(string: &str, substring: &str) -> Vec<usize> {
-    let mut byte_index: usize = 0;
-    let mut len: usize = 0;
+    let mut byte_index = 0;
+    let mut len = 0;
     let mut output = string
         .rmatch_indices(substring)
         .collect::<Vec<(usize, &str)>>()
@@ -68,8 +68,8 @@ fn rmatch_indices(string: &str, substring: &str) -> Vec<usize> {
 /// Returns a list of the UTF-16 indices of disjoint matches, from end to start.
 #[pyfunction]
 fn rmatch_utf16_indices(string: &str, substring: &str) -> Vec<usize> {
-    let mut byte_index: usize = 0;
-    let mut len: usize = 0;
+    let mut byte_index = 0;
+    let mut len = 0;
     let mut output = string
         .rmatch_indices(substring)
         .collect::<Vec<(usize, &str)>>()

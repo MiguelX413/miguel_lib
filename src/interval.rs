@@ -75,7 +75,13 @@ impl Interval {
             "Interval([{}])",
             self.sub_intervals
                 .iter()
-                .map(|&f| format!("({}, {})", f.1, f.2))
+                .map(|&f| format!(
+                    "({}, {}, {}, {})",
+                    (|x| if x { "True" } else { "False" })(f.0),
+                    f.1,
+                    f.2,
+                    (|x| if x { "True" } else { "False" })(f.3)
+                ))
                 .collect::<Vec<String>>()
                 .join(", ")
         )
@@ -85,7 +91,13 @@ impl Interval {
             "({})",
             self.sub_intervals
                 .iter()
-                .map(|&f| format!("[{}, {}]", f.1, f.2))
+                .map(|&f| format!(
+                    "{}{}, {}{}",
+                    (|x| if x { "[" } else { "(" })(f.0),
+                    f.1,
+                    f.2,
+                    (|x| if x { "]" } else { ")" })(f.3)
+                ))
                 .collect::<Vec<String>>()
                 .join(" ∪ ")
         )

@@ -8,7 +8,7 @@ fn merge_sub_spans(sub_spans: &mut Vec<(i32, i32)>) {
     sub_spans.sort_by_key(|&a| a.0);
     let mut index: usize = 0;
     for i in 1..sub_spans.len() {
-        if sub_spans[index].1 >= sub_spans[i].0 {
+        if sub_spans[index].1 >= sub_spans[i].0 - 1 {
             sub_spans[index].1 = max(sub_spans[index].1, sub_spans[i].1);
         } else {
             index += 1;

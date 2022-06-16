@@ -7,8 +7,16 @@ fn merge_sub_intervals(sub_intervals: &mut Vec<(bool, f64, f64, bool)>) {
     sub_intervals.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
     let mut index: usize = 0;
     for i in 1..sub_intervals.len() {
-        if sub_intervals[index].2 >= sub_intervals[i].1 {
-            sub_intervals[index].2 = sub_intervals[index].2.max(sub_intervals[i].2);
+        if (sub_intervals[index].2 > sub_intervals[i].1)
+            || ((sub_intervals[index].2 == sub_intervals[i].1)
+                && ((sub_intervals[index].3) || (sub_intervals[i].0)))
+        {
+            if (sub_intervals[i].2 > sub_intervals[index].2)
+                || ((sub_intervals[i].2 == sub_intervals[index].2) && (sub_intervals[i].3))
+            {
+                sub_intervals[index].2 = sub_intervals[i].2;
+                sub_intervals[index].3 = sub_intervals[i].3;
+            }
         } else {
             index += 1;
             sub_intervals[index] = sub_intervals[i];

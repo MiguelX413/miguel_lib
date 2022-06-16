@@ -1,15 +1,14 @@
 use pyo3::exceptions::PyValueError;
-use std::cmp::max;
 
 use pyo3::prelude::*;
 use pyo3::types::PyTuple;
 
-fn merge_sub_intervals(sub_intervals: &mut Vec<(i32, i32)>) {
-    sub_intervals.sort_by_key(|&a| a.0);
+fn merge_sub_intervals(sub_intervals: &mut Vec<(bool, f64, f64, bool)>) {
+    sub_intervals.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
     let mut index: usize = 0;
     for i in 1..sub_intervals.len() {
-        if sub_intervals[index].1 >= sub_intervals[i].0 {
-            sub_intervals[index].1 = max(sub_intervals[index].1, sub_intervals[i].1);
+        if sub_intervals[index].2 >= sub_intervals[i].1 {
+            sub_intervals[index].2 = sub_intervals[index].2.max(sub_intervals[i].2);
         } else {
             index += 1;
             sub_intervals[index] = sub_intervals[i];
@@ -21,24 +20,28 @@ fn merge_sub_intervals(sub_intervals: &mut Vec<(i32, i32)>) {
 /// A class used to represent intervals.
 #[pyclass]
 pub(crate) struct Interval {
-    sub_intervals: Vec<(i32, i32)>,
+    sub_intervals: Vec<(bool, f64, f64, bool)>,
 }
 
 #[pymethods]
 impl Interval {
     #[new]
-    fn py_new(sub_intervals: Option<Vec<(i32, i32)>>) -> PyResult<Self> {
+    fn py_new(sub_intervals: Option<Vec<(bool, f64, f64, bool)>>) -> PyResult<Self> {
         match sub_intervals {
             Some(mut f) => {
-                if f.iter()
-                    .any(|&sub_interval| sub_interval.0 > sub_interval.1)
-                {
-                    Err(PyValueError::new_err(
-                        "Start point of sub-interval cannot be greater than its end point",
-                    ))
+                if f.iter().any(|&f| f.1.is_nan() || f.2.is_nan()) {
+                    Err(PyValueError::new_err("Sub-interval points cannot be NaN"))
                 } else {
-                    merge_sub_intervals(&mut f);
-                    Ok(Interval { sub_intervals: f })
+                    if f.iter()
+                        .any(|&sub_interval| sub_interval.1 > sub_interval.2)
+                    {
+                        Err(PyValueError::new_err(
+                            "Start point of sub-interval cannot be greater than its end point",
+                        ))
+                    } else {
+                        merge_sub_intervals(&mut f);
+                        Ok(Interval { sub_intervals: f })
+                    }
                 }
             }
             None => Ok(Interval {
@@ -62,17 +65,17 @@ impl Interval {
         }
         Ok(())
     }
-    fn __contains__(&self, item: i32) -> bool {
+    fn __contains__(&self, item: f64) -> bool {
         self.sub_intervals
             .iter()
-            .any(|&f| f.0 <= item && item <= f.1)
+            .any(|&f| f.1 <= item && item <= f.2)
     }
     fn __repr__(&self) -> String {
         format!(
             "Interval([{}])",
             self.sub_intervals
                 .iter()
-                .map(|&f| format!("({}, {})", f.0, f.1))
+                .map(|&f| format!("({}, {})", f.1, f.2))
                 .collect::<Vec<String>>()
                 .join(", ")
         )
@@ -82,7 +85,7 @@ impl Interval {
             "({})",
             self.sub_intervals
                 .iter()
-                .map(|&f| format!("[{}, {}]", f.0, f.1))
+                .map(|&f| format!("[{}, {}]", f.1, f.2))
                 .collect::<Vec<String>>()
                 .join(" ∪ ")
         )

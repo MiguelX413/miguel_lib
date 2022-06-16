@@ -82,7 +82,7 @@ impl Interval {
     fn __contains__(&self, item: f64) -> bool {
         self.sub_intervals
             .iter()
-            .any(|&f| f.1 <= item && item <= f.2)
+            .any(|&f| (f.1 < item && item < f.2) || ((item == f.1 && f.0) || (item == f.2 && f.3)))
     }
     fn __repr__(&self) -> String {
         format!(

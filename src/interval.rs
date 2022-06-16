@@ -42,7 +42,7 @@ impl Interval {
                 }
 
                 if f.iter()
-                    .any(|f| (f.0 && f.1.is_infinite()) || (f.3 && f.2.is_infinite()))
+                    .any(|f| (f.1.is_infinite() && f.0) || (f.2.is_infinite() && f.3))
                 {
                     return Err(PyValueError::new_err("Interval cannot contain inf"));
                 }

@@ -1,4 +1,5 @@
 mod interval;
+mod misc;
 mod span;
 
 use crate::interval::Interval;

@@ -38,22 +38,20 @@ impl Interval {
     fn py_new(sub_intervals: Option<Vec<(bool, f64, f64, bool)>>) -> PyResult<Self> {
         match sub_intervals {
             Some(mut f) => {
-                if f.iter().any(|&f| f.1.is_nan() || f.2.is_nan()) {
-                    return Err(PyValueError::new_err("Sub-interval points cannot be NaN"));
-                }
-
-                if f.iter()
-                    .any(|f| (f.1.is_infinite() && f.0) || (f.2.is_infinite() && f.3))
-                {
-                    return Err(PyValueError::new_err("Interval cannot contain inf"));
-                }
-
-                if f.iter()
-                    .any(|&sub_interval| sub_interval.1 > sub_interval.2)
-                {
-                    return Err(PyValueError::new_err(
-                        "Start point of sub-interval cannot be greater than its end point",
-                    ));
+                for sub_interval in &f {
+                    if sub_interval.1.is_nan() || sub_interval.2.is_nan() {
+                        return Err(PyValueError::new_err("Sub-interval points cannot be NaN"));
+                    }
+                    if (sub_interval.1.is_infinite() && sub_interval.0)
+                        || (sub_interval.2.is_infinite() && sub_interval.3)
+                    {
+                        return Err(PyValueError::new_err("Interval cannot contain inf"));
+                    }
+                    if sub_interval.1 > sub_interval.2 {
+                        return Err(PyValueError::new_err(
+                            "Start point of sub-interval cannot be greater than its end point",
+                        ));
+                    }
                 }
 
                 merge_sub_intervals(&mut f);

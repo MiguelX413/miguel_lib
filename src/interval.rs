@@ -37,25 +37,36 @@ impl Interval {
     #[new]
     fn py_new(sub_intervals: Option<Vec<(bool, f64, f64, bool)>>) -> PyResult<Self> {
         match sub_intervals {
-            Some(mut f) => {
-                for sub_interval in &f {
-                    if sub_interval.1.is_nan() || sub_interval.2.is_nan() {
+            Some(mut some_sub_intervals) => {
+                let mut index = 0;
+                for i in 0..some_sub_intervals.len() {
+                    if some_sub_intervals[i].1.is_nan() || some_sub_intervals[i].2.is_nan() {
                         return Err(PyValueError::new_err("Sub-interval points cannot be NaN"));
                     }
-                    if (sub_interval.1.is_infinite() && sub_interval.0)
-                        || (sub_interval.2.is_infinite() && sub_interval.3)
+                    if (some_sub_intervals[i].1.is_infinite() && some_sub_intervals[i].0)
+                        || (some_sub_intervals[i].2.is_infinite() && some_sub_intervals[i].3)
                     {
                         return Err(PyValueError::new_err("Interval cannot contain inf"));
                     }
-                    if sub_interval.1 > sub_interval.2 {
+                    if some_sub_intervals[i].1 > some_sub_intervals[i].2 {
                         return Err(PyValueError::new_err(
                             "Start point of sub-interval cannot be greater than its end point",
                         ));
                     }
-                }
 
-                merge_sub_intervals(&mut f);
-                Ok(Interval { sub_intervals: f })
+                    if !((some_sub_intervals[i].1 == some_sub_intervals[i].2)
+                        && (!some_sub_intervals[i].0 || !some_sub_intervals[i].3))
+                    {
+                        some_sub_intervals[index] = some_sub_intervals[i];
+                        index += 1;
+                    }
+                }
+                some_sub_intervals.truncate(index);
+
+                merge_sub_intervals(&mut some_sub_intervals);
+                Ok(Interval {
+                    sub_intervals: some_sub_intervals,
+                })
             }
             None => Ok(Interval {
                 sub_intervals: vec![],

@@ -89,6 +89,15 @@ impl Interval {
         }
         Ok(())
     }
+    fn __or__(&self, other: &Interval) -> Interval {
+        let mut output = self.clone();
+        output.__ior__(other);
+        output
+    }
+    fn __ior__(&mut self, other: &Interval) {
+        self.sub_intervals.append(&mut other.sub_intervals.clone());
+        merge_sub_intervals(&mut self.sub_intervals);
+    }
     fn __contains__(&self, item: f64) -> bool {
         self.sub_intervals
             .iter()
@@ -128,15 +137,6 @@ impl Interval {
         } else {
             "∅".to_string()
         }
-    }
-    fn __or__(&self, other: &Interval) -> Interval {
-        let mut output = self.clone();
-        output.__ior__(other);
-        output
-    }
-    fn __ior__(&mut self, other: &Interval) {
-        self.sub_intervals.append(&mut other.sub_intervals.clone());
-        merge_sub_intervals(&mut self.sub_intervals);
     }
 }
 

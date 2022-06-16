@@ -60,6 +60,15 @@ impl Span {
         }
         Ok(())
     }
+    fn __or__(&self, other: &Span) -> Span {
+        let mut output = self.clone();
+        output.__ior__(other);
+        output
+    }
+    fn __ior__(&mut self, other: &Span) {
+        self.sub_spans.append(&mut other.sub_spans.clone());
+        merge_sub_spans(&mut self.sub_spans);
+    }
     fn __contains__(&self, item: i32) -> bool {
         self.sub_spans.iter().any(|&f| f.0 <= item && item <= f.1)
     }
@@ -82,15 +91,6 @@ impl Span {
                 .collect::<Vec<String>>()
                 .join(" ∪ ")
         )
-    }
-    fn __or__(&self, other: &Span) -> Span {
-        let mut output = self.clone();
-        output.__ior__(other);
-        output
-    }
-    fn __ior__(&mut self, other: &Span) {
-        self.sub_spans.append(&mut other.sub_spans.clone());
-        merge_sub_spans(&mut self.sub_spans);
     }
 }
 

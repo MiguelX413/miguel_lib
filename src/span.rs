@@ -92,6 +92,9 @@ impl Span {
                 .join(" ∪ ")
         )
     }
+    #[classattr]
+    #[allow(non_upper_case_globals)]
+    const __hash__: Option<PyObject> = None;
 }
 
 impl Clone for Span {

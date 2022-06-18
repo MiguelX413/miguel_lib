@@ -1,3 +1,4 @@
+use pyo3::basic::CompareOp;
 use pyo3::exceptions::PyValueError;
 
 use crate::misc::a_else_b;
@@ -24,6 +25,13 @@ fn merge_sub_intervals(sub_intervals: &mut Vec<(bool, f64, f64, bool)>) {
         }
     }
     sub_intervals.truncate(index + 1);
+}
+
+fn is_b_subset(a: &Interval, b: &Interval) -> bool {
+    let mut temp = a.clone();
+    temp.sub_intervals.extend(b.sub_intervals.iter());
+    merge_sub_intervals(&mut temp.sub_intervals);
+    a.sub_intervals == temp.sub_intervals
 }
 
 /// A class used to represent intervals.
@@ -73,6 +81,14 @@ impl Interval {
             }),
         }
     }
+    /// Return True if other contains this Interval, else False.
+    fn issubset(&self, other: &Self) -> bool {
+        is_b_subset(other, self)
+    }
+    /// Return True if this Interval contains other, else False.
+    fn issuperset(&self, other: &Self) -> bool {
+        is_b_subset(self, other)
+    }
     #[args(others = "*")]
     fn union(&self, others: &PyTuple) -> PyResult<Interval> {
         let mut output = self.clone();
@@ -89,13 +105,13 @@ impl Interval {
         }
         Ok(())
     }
-    fn __or__(&self, other: &Interval) -> Interval {
+    fn __or__(&self, other: &Self) -> Interval {
         let mut output = self.clone();
         output.__ior__(other);
         output
     }
-    fn __ior__(&mut self, other: &Interval) {
-        self.sub_intervals.append(&mut other.sub_intervals.clone());
+    fn __ior__(&mut self, other: &Self) {
+        self.sub_intervals.extend(other.sub_intervals.iter());
         merge_sub_intervals(&mut self.sub_intervals);
     }
     fn __contains__(&self, item: f64) -> bool {
@@ -136,6 +152,16 @@ impl Interval {
                 .join(" ∪ ")
         } else {
             "∅".to_string()
+        }
+    }
+    fn __richcmp__(&self, other: &Self, op: CompareOp) -> bool {
+        match op {
+            CompareOp::Eq => self.sub_intervals == other.sub_intervals,
+            CompareOp::Ne => self.sub_intervals != other.sub_intervals,
+            CompareOp::Lt => self.issubset(other) && (self.sub_intervals != other.sub_intervals),
+            CompareOp::Le => self.issubset(other),
+            CompareOp::Gt => self.issuperset(other) && (self.sub_intervals != other.sub_intervals),
+            CompareOp::Ge => self.issuperset(other),
         }
     }
     #[classattr]

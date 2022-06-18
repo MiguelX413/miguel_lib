@@ -1,3 +1,4 @@
+use pyo3::basic::CompareOp;
 use pyo3::exceptions::PyValueError;
 use std::cmp::max;
 
@@ -16,6 +17,13 @@ fn merge_sub_spans(sub_spans: &mut Vec<(i32, i32)>) {
         }
     }
     sub_spans.truncate(index + 1);
+}
+
+fn is_b_subset(a: &Span, b: &Span) -> bool {
+    let mut temp = a.clone();
+    temp.sub_spans.extend(b.sub_spans.iter());
+    merge_sub_spans(&mut temp.sub_spans);
+    a.sub_spans == temp.sub_spans
 }
 
 /// A class used to represent spans.
@@ -44,6 +52,14 @@ impl Span {
             None => Ok(Span { sub_spans: vec![] }),
         }
     }
+    /// Return True if other contains this Span, else False.
+    fn issubset(&self, other: &Self) -> bool {
+        is_b_subset(other, self)
+    }
+    /// Return True if this Span contains other, else False.
+    fn issuperset(&self, other: &Self) -> bool {
+        is_b_subset(self, other)
+    }
     #[args(others = "*")]
     fn union(&self, others: &PyTuple) -> PyResult<Span> {
         let mut output = self.clone();
@@ -60,13 +76,13 @@ impl Span {
         }
         Ok(())
     }
-    fn __or__(&self, other: &Span) -> Span {
+    fn __or__(&self, other: &Self) -> Span {
         let mut output = self.clone();
         output.__ior__(other);
         output
     }
-    fn __ior__(&mut self, other: &Span) {
-        self.sub_spans.append(&mut other.sub_spans.clone());
+    fn __ior__(&mut self, other: &Self) {
+        self.sub_spans.extend(other.sub_spans.iter());
         merge_sub_spans(&mut self.sub_spans);
     }
     fn __contains__(&self, item: i32) -> bool {
@@ -91,6 +107,16 @@ impl Span {
                 .collect::<Vec<String>>()
                 .join(" ∪ ")
         )
+    }
+    fn __richcmp__(&self, other: &Self, op: CompareOp) -> bool {
+        match op {
+            CompareOp::Eq => self.sub_spans == other.sub_spans,
+            CompareOp::Ne => self.sub_spans != other.sub_spans,
+            CompareOp::Lt => self.issubset(other) && (self.sub_spans != other.sub_spans),
+            CompareOp::Le => self.issubset(other),
+            CompareOp::Gt => self.issuperset(other) && (self.sub_spans != other.sub_spans),
+            CompareOp::Ge => self.issuperset(other),
+        }
     }
     #[classattr]
     #[allow(non_upper_case_globals)]

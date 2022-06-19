@@ -29,6 +29,8 @@ class Span:
     def __init__(
         self, sub_spans: Optional[Sequence[Tuple[int, int]]] = ...
     ) -> None: ...
+    def copy(self) -> Span:
+        """Return a shallow copy of a Span"""
     def isdisjoint(self, other: Span) -> bool:
         """Returns True if two Spans do not overlap."""
     def issubset(self, other: Span) -> bool:
@@ -56,6 +58,8 @@ class Interval:
     def __init__(
         self, sub_intervals: Optional[Sequence[Tuple[bool, float, float, bool]]] = ...
     ) -> None: ...
+    def copy(self) -> Interval:
+        """Return a shallow copy of an Interval"""
     def isdisjoint(self, other: Interval) -> bool:
         """Returns True if two Intervals do not overlap."""
     def issubset(self, other: Interval) -> bool:

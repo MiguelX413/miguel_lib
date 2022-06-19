@@ -68,6 +68,10 @@ impl Span {
             None => Ok(Span { sub_spans: vec![] }),
         }
     }
+    /// Return a shallow copy of a Span.
+    fn copy(&self) -> Self {
+        self.clone()
+    }
     /// Returns True if two Spans do not overlap.
     fn isdisjoint(&self, other: &Self) -> bool {
         are_disjoint(self, other)

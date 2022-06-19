@@ -104,6 +104,10 @@ impl Interval {
             }),
         }
     }
+    /// Return a shallow copy of an Interval.
+    fn copy(&self) -> Self {
+        self.clone()
+    }
     /// Returns True if two Intervals do not overlap.
     fn isdisjoint(&self, other: &Self) -> bool {
         are_disjoint(self, other)

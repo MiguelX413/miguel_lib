@@ -103,10 +103,7 @@ impl Interval {
     }
     /// Return True if other contains this Interval, else False.
     fn issubset(&self, other: &Self) -> bool {
-        let mut temp = other.clone();
-        temp.sub_intervals.extend(self.sub_intervals.iter());
-        merge_sub_intervals(&mut temp.sub_intervals);
-        other.sub_intervals == temp.sub_intervals
+        other.sub_intervals == other.__or__(self).sub_intervals
     }
     /// Return True if this Interval contains other, else False.
     fn issuperset(&self, other: &Self) -> bool {

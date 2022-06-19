@@ -67,10 +67,7 @@ impl Span {
     }
     /// Return True if other contains this Span, else False.
     fn issubset(&self, other: &Self) -> bool {
-        let mut temp = other.clone();
-        temp.sub_spans.extend(self.sub_spans.iter());
-        merge_sub_spans(&mut temp.sub_spans);
-        other.sub_spans == temp.sub_spans
+        other.sub_spans == other.__or__(self).sub_spans
     }
     /// Return True if this Span contains other, else False.
     fn issuperset(&self, other: &Self) -> bool {

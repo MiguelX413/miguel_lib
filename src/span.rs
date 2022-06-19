@@ -19,6 +19,22 @@ fn merge_sub_spans(sub_spans: &mut Vec<(i32, i32)>) {
     sub_spans.truncate(index + 1);
 }
 
+fn are_disjoint(a: &Span, b: &Span) -> bool {
+    let mut sub_spans = a.sub_spans.clone();
+    sub_spans.extend(b.sub_spans.iter());
+    sub_spans.sort_by_key(|&a| a.0);
+    let mut index = 0;
+    for i in 1..sub_spans.len() {
+        if sub_spans[index].1 >= sub_spans[i].0 {
+            return false;
+        } else {
+            index += 1;
+            sub_spans[index] = sub_spans[i];
+        }
+    }
+    true
+}
+
 fn is_b_subset(a: &Span, b: &Span) -> bool {
     let mut temp = a.clone();
     temp.sub_spans.extend(b.sub_spans.iter());
@@ -51,6 +67,10 @@ impl Span {
             }
             None => Ok(Span { sub_spans: vec![] }),
         }
+    }
+    /// Returns True if two Spans do not overlap.
+    fn isdisjoint(&self, other: &Self) -> bool {
+        are_disjoint(self, other)
     }
     /// Return True if other contains this Span, else False.
     fn issubset(&self, other: &Self) -> bool {

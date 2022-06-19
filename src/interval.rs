@@ -27,6 +27,29 @@ fn merge_sub_intervals(sub_intervals: &mut Vec<(bool, f64, f64, bool)>) {
     sub_intervals.truncate(index + 1);
 }
 
+fn are_disjoint(a: &Interval, b: &Interval) -> bool {
+    let mut sub_intervals = a.sub_intervals.clone();
+    sub_intervals.extend(b.sub_intervals.iter());
+    sub_intervals.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
+    let mut index = 0;
+    for i in 1..sub_intervals.len() {
+        if (sub_intervals[index].2 > sub_intervals[i].1)
+            || ((sub_intervals[index].2 == sub_intervals[i].1)
+                && ((sub_intervals[index].3) && (sub_intervals[i].0)))
+        {
+            if (sub_intervals[i].2 > sub_intervals[index].2)
+                || ((sub_intervals[i].2 == sub_intervals[index].2) && (sub_intervals[i].3))
+            {
+                return false;
+            }
+        } else {
+            index += 1;
+            sub_intervals[index] = sub_intervals[i];
+        }
+    }
+    true
+}
+
 fn is_b_subset(a: &Interval, b: &Interval) -> bool {
     let mut temp = a.clone();
     temp.sub_intervals.extend(b.sub_intervals.iter());
@@ -80,6 +103,10 @@ impl Interval {
                 sub_intervals: vec![],
             }),
         }
+    }
+    /// Returns True if two Intervals do not overlap.
+    fn isdisjoint(&self, other: &Self) -> bool {
+        are_disjoint(self, other)
     }
     /// Return True if other contains this Interval, else False.
     fn issubset(&self, other: &Self) -> bool {

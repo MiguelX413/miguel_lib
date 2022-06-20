@@ -11,11 +11,16 @@ fn merge_sub_intervals(sub_intervals: &mut Vec<(bool, f64, f64, bool)>) {
     for i in 1..sub_intervals.len() {
         if (sub_intervals[index].2 > sub_intervals[i].1)
             || ((sub_intervals[index].2 == sub_intervals[i].1)
+        // check for adjacence
                 && ((sub_intervals[index].3) || (sub_intervals[i].0)))
-        //check for adjacence
         {
-            sub_intervals[index].2 = sub_intervals[i].2;
-            sub_intervals[index].3 = sub_intervals[i].3;
+            // emulate max()
+            if (sub_intervals[i].2 > sub_intervals[index].2)
+                || ((sub_intervals[i].2 == sub_intervals[index].2) && (sub_intervals[i].3))
+            {
+                sub_intervals[index].2 = sub_intervals[i].2;
+                sub_intervals[index].3 = sub_intervals[i].3;
+            }
         } else {
             index += 1;
             sub_intervals[index] = sub_intervals[i];
@@ -84,8 +89,8 @@ impl Interval {
         for i in 1..sub_intervals.len() {
             if (sub_intervals[index].2 > sub_intervals[i].1)
                 || ((sub_intervals[index].2 == sub_intervals[i].1)
+            // check for strict overlap
                     && ((sub_intervals[index].3) && (sub_intervals[i].0)))
-            //check for strict overlap
             {
                 return false;
             } else {

@@ -1,7 +1,6 @@
 use pyo3::basic::CompareOp;
 use pyo3::exceptions::PyValueError;
 
-use crate::misc::a_else_b;
 use pyo3::prelude::*;
 use pyo3::types::PyTuple;
 
@@ -145,10 +144,10 @@ impl Interval {
                 .iter()
                 .map(|&f| format!(
                     "({}, {}, {}, {})",
-                    a_else_b(f.0, "True", "False"),
+                    if f.0 { "True" } else { "False" },
                     f.1,
                     f.2,
-                    a_else_b(f.3, "True", "False")
+                    if f.3 { "True" } else { "False" },
                 ))
                 .collect::<Vec<String>>()
                 .join(", ")
@@ -161,10 +160,10 @@ impl Interval {
                 .map(|&f| {
                     format!(
                         "{}{}, {}{}",
-                        a_else_b(f.0, "[", "("),
+                        if f.0 { "[" } else { "(" },
                         f.1,
                         f.2,
-                        a_else_b(f.3, "]", ")"),
+                        if f.3 { "]" } else { ")" },
                     )
                 })
                 .collect::<Vec<String>>()

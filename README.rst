@@ -1,6 +1,6 @@
 .. badges-start
 
-|CI| |pypi| |pyversion| |license| |downloads| |black|
+|CI| |pypi| |pyversion| |implementation| |license| |downloads| |black|
 
 .. |CI| image:: https://github.com/MiguelX413/miguel_lib/actions/workflows/CI.yml/badge.svg
    :alt: GitHub Actions Build Status
@@ -16,6 +16,9 @@
 
 .. |pyversion| image:: https://img.shields.io/pypi/pyversions/miguel_lib.svg
    :alt: Supported Python Versions
+
+.. |implementation| image:: https://img.shields.io/pypi/implementation/miguel_lib.svg
+   :alt: PyPI - Implementation
 
 .. |downloads| image:: https://pepy.tech/badge/miguel_lib/month
    :alt: PyPI Download Count

@@ -1,6 +1,6 @@
 use pyo3::basic::CompareOp;
 use pyo3::exceptions::PyValueError;
-use std::cmp::max;
+use std::cmp::{max, min};
 
 use pyo3::prelude::*;
 use pyo3::types::PyTuple;
@@ -40,14 +40,26 @@ impl Span {
                 }
 
                 merge_sub_spans(&mut f);
-                Ok(Span { sub_spans: f })
+                Ok(Self { sub_spans: f })
             }
-            None => Ok(Span { sub_spans: vec![] }),
+            None => Ok(Self { sub_spans: vec![] }),
         }
     }
     /// Return a shallow copy of a Span.
     fn copy(&self) -> Self {
         self.clone()
+    }
+    #[args(others = "*")]
+    fn intersection(&self, others: &PyTuple) -> PyResult<Self> {
+        let mut output = self.clone();
+        output.intersection_update(others)?;
+        Ok(output)
+    }
+    #[args(others = "*")]
+    fn intersection_update(&mut self, others: &PyTuple) -> PyResult<()> {
+        let inputs: Vec<Self> = others.extract()?;
+        inputs.iter().for_each(|input| self.__iand__(input));
+        Ok(())
     }
     /// Returns True if two Spans do not overlap.
     fn isdisjoint(&self, other: &Self) -> bool {
@@ -74,14 +86,14 @@ impl Span {
         other.issubset(self)
     }
     #[args(others = "*")]
-    fn union(&self, others: &PyTuple) -> PyResult<Span> {
+    fn union(&self, others: &PyTuple) -> PyResult<Self> {
         let mut output = self.clone();
         output.union_update(others)?;
         Ok(output)
     }
     #[args(others = "*")]
     fn union_update(&mut self, others: &PyTuple) -> PyResult<()> {
-        let inputs: Vec<Span> = others.extract()?;
+        let inputs: Vec<Self> = others.extract()?;
         self.sub_spans
             .extend(inputs.iter().flat_map(|f| &f.sub_spans));
         if !inputs.is_empty() {
@@ -89,7 +101,7 @@ impl Span {
         }
         Ok(())
     }
-    fn __or__(&self, other: &Self) -> Span {
+    fn __or__(&self, other: &Self) -> Self {
         let mut output = self.clone();
         output.__ior__(other);
         output
@@ -97,6 +109,31 @@ impl Span {
     fn __ior__(&mut self, other: &Self) {
         self.sub_spans.extend(other.sub_spans.iter());
         merge_sub_spans(&mut self.sub_spans);
+    }
+    fn __and__(&self, other: &Self) -> Self {
+        let mut output = Self { sub_spans: vec![] };
+        let mut next_bound = 0;
+        let mut bottom_bound;
+        for &x in &self.sub_spans {
+            bottom_bound = next_bound;
+            for y in bottom_bound..other.sub_spans.len() {
+                if x.1 < other.sub_spans[y].0 {
+                    break;
+                } else {
+                    if max(x.0, other.sub_spans[y].0) <= min(x.1, other.sub_spans[y].1) {
+                        output.sub_spans.push((
+                            max(x.0, other.sub_spans[y].0),
+                            min(x.1, other.sub_spans[y].1),
+                        ));
+                    }
+                    next_bound = y;
+                }
+            }
+        }
+        output
+    }
+    fn __iand__(&mut self, other: &Self) {
+        self.sub_spans = self.__and__(other).sub_spans;
     }
     fn __contains__(&self, item: i32) -> bool {
         self.sub_spans.iter().any(|&f| f.0 <= item && item <= f.1)
@@ -137,8 +174,8 @@ impl Span {
 }
 
 impl Clone for Span {
-    fn clone(&self) -> Span {
-        Span {
+    fn clone(&self) -> Self {
+        Self {
             sub_spans: self.sub_spans.clone(),
         }
     }

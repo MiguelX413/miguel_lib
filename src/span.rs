@@ -149,14 +149,15 @@ impl Span {
         )
     }
     fn __str__(&self) -> String {
-        format!(
-            "({})",
+        if !self.sub_spans.is_empty() {
             self.sub_spans
                 .iter()
                 .map(|&f| format!("[{}, {}]", f.0, f.1))
                 .collect::<Vec<String>>()
                 .join(" ∪ ")
-        )
+        } else {
+            "∅".to_string()
+        }
     }
     fn __richcmp__(&self, other: &Self, op: CompareOp) -> bool {
         match op {

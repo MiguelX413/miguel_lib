@@ -66,11 +66,11 @@ impl Interval {
                 some_sub_intervals.truncate(index);
 
                 merge_sub_intervals(&mut some_sub_intervals);
-                Ok(Interval {
+                Ok(Self {
                     sub_intervals: some_sub_intervals,
                 })
             }
-            None => Ok(Interval {
+            None => Ok(Self {
                 sub_intervals: vec![],
             }),
         }
@@ -78,6 +78,18 @@ impl Interval {
     /// Return a shallow copy of an Interval.
     fn copy(&self) -> Self {
         self.clone()
+    }
+    #[args(others = "*")]
+    fn intersection(&self, others: &PyTuple) -> PyResult<Self> {
+        let mut output = self.clone();
+        output.intersection_update(others)?;
+        Ok(output)
+    }
+    #[args(others = "*")]
+    fn intersection_update(&mut self, others: &PyTuple) -> PyResult<()> {
+        let inputs: Vec<Self> = others.extract()?;
+        inputs.iter().for_each(|input| self.__iand__(input));
+        Ok(())
     }
     /// Returns True if two Intervals do not overlap.
     fn isdisjoint(&self, other: &Self) -> bool {
@@ -108,14 +120,14 @@ impl Interval {
         other.issubset(self)
     }
     #[args(others = "*")]
-    fn union(&self, others: &PyTuple) -> PyResult<Interval> {
+    fn union(&self, others: &PyTuple) -> PyResult<Self> {
         let mut output = self.clone();
         output.union_update(others)?;
         Ok(output)
     }
     #[args(others = "*")]
     fn union_update(&mut self, others: &PyTuple) -> PyResult<()> {
-        let inputs: Vec<Interval> = others.extract()?;
+        let inputs: Vec<Self> = others.extract()?;
         self.sub_intervals
             .extend(inputs.iter().flat_map(|f| &f.sub_intervals));
         if !inputs.is_empty() {
@@ -123,7 +135,7 @@ impl Interval {
         }
         Ok(())
     }
-    fn __or__(&self, other: &Self) -> Interval {
+    fn __or__(&self, other: &Self) -> Self {
         let mut output = self.clone();
         output.__ior__(other);
         output
@@ -131,6 +143,51 @@ impl Interval {
     fn __ior__(&mut self, other: &Self) {
         self.sub_intervals.extend(other.sub_intervals.iter());
         merge_sub_intervals(&mut self.sub_intervals);
+    }
+    fn __and__(&self, other: &Self) -> Self {
+        let mut output = Self {
+            sub_intervals: vec![],
+        };
+        let mut next_bound = 0;
+        let mut bottom_bound;
+        for &x in &self.sub_intervals {
+            bottom_bound = next_bound;
+            for y in bottom_bound..other.sub_intervals.len() {
+                if (x.2 < other.sub_intervals[y].1)
+                    || ((x.2 == other.sub_intervals[y].1) && !(x.3 && other.sub_intervals[y].0))
+                {
+                    break;
+                } else {
+                    let left = if (x.1 > other.sub_intervals[y].1)
+                        || ((x.1 == other.sub_intervals[y].1) && !x.0)
+                    {
+                        (x.0, x.1)
+                    } else {
+                        (other.sub_intervals[y].0, other.sub_intervals[y].1)
+                    };
+
+                    let right = if (x.2 < other.sub_intervals[y].2)
+                        || ((x.2 == other.sub_intervals[y].2) && !x.3)
+                    {
+                        (x.2, x.3)
+                    } else {
+                        (other.sub_intervals[y].2, other.sub_intervals[y].3)
+                    };
+
+                    if (left.1 < right.0) || ((left.1 == right.0) && left.0 && right.1) {
+                        output
+                            .sub_intervals
+                            .push((left.0, left.1, right.0, right.1));
+                    }
+
+                    next_bound = y;
+                }
+            }
+        }
+        output
+    }
+    fn __iand__(&mut self, other: &Self) {
+        self.sub_intervals = self.__and__(other).sub_intervals;
     }
     fn __contains__(&self, item: f64) -> bool {
         self.sub_intervals
@@ -188,8 +245,8 @@ impl Interval {
 }
 
 impl Clone for Interval {
-    fn clone(&self) -> Interval {
-        Interval {
+    fn clone(&self) -> Self {
+        Self {
             sub_intervals: self.sub_intervals.clone(),
         }
     }

@@ -120,11 +120,10 @@ impl Span {
                 if x.1 < other.sub_spans[y].0 {
                     break;
                 } else {
-                    if max(x.0, other.sub_spans[y].0) <= min(x.1, other.sub_spans[y].1) {
-                        output.sub_spans.push((
-                            max(x.0, other.sub_spans[y].0),
-                            min(x.1, other.sub_spans[y].1),
-                        ));
+                    let left = max(x.0, other.sub_spans[y].0);
+                    let right = min(x.1, other.sub_spans[y].1);
+                    if left <= right {
+                        output.sub_spans.push((left, right));
                     }
                     next_bound = y;
                 }

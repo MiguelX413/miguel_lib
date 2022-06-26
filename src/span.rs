@@ -57,8 +57,10 @@ impl Span {
     }
     #[args(others = "*")]
     fn intersection_update(&mut self, others: &PyTuple) -> PyResult<()> {
-        let inputs: Vec<Self> = others.extract()?;
-        inputs.iter().for_each(|input| self.__iand__(input));
+        others
+            .extract::<Vec<Self>>()?
+            .iter()
+            .for_each(|input| self.__iand__(input));
         Ok(())
     }
     /// Returns True if two Spans do not overlap.
@@ -93,7 +95,7 @@ impl Span {
     }
     #[args(others = "*")]
     fn union_update(&mut self, others: &PyTuple) -> PyResult<()> {
-        let inputs: Vec<Self> = others.extract()?;
+        let inputs = others.extract::<Vec<Self>>()?;
         self.segments
             .extend(inputs.iter().flat_map(|f| &f.segments));
         if !inputs.is_empty() {

@@ -4,75 +4,77 @@ use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::types::PyTuple;
 
-fn merge_sub_intervals(sub_intervals: &mut Vec<(bool, f64, f64, bool)>) {
-    sub_intervals.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
+fn merge_segments(segments: &mut Vec<(bool, f64, f64, bool)>) {
+    segments.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
     let mut index = 0;
-    for i in 1..sub_intervals.len() {
-        if (sub_intervals[index].2 > sub_intervals[i].1)
-            || ((sub_intervals[index].2 == sub_intervals[i].1)
+    for i in 1..segments.len() {
+        if (segments[index].2 > segments[i].1)
+            || ((segments[index].2 == segments[i].1)
         // check for adjacence
-                && ((sub_intervals[index].3) || (sub_intervals[i].0)))
+                && ((segments[index].3) || (segments[i].0)))
         {
             // emulate max()
-            if (sub_intervals[i].2 > sub_intervals[index].2)
-                || ((sub_intervals[i].2 == sub_intervals[index].2) && (sub_intervals[i].3))
+            if (segments[i].2 > segments[index].2)
+                || ((segments[i].2 == segments[index].2) && (segments[i].3))
             {
-                sub_intervals[index].2 = sub_intervals[i].2;
-                sub_intervals[index].3 = sub_intervals[i].3;
+                segments[index].2 = segments[i].2;
+                segments[index].3 = segments[i].3;
             }
         } else {
             index += 1;
-            sub_intervals[index] = sub_intervals[i];
+            segments[index] = segments[i];
         }
     }
-    sub_intervals.truncate(index + 1);
+    segments.truncate(index + 1);
+}
+
+fn validate_segment(segment: (bool, f64, f64, bool)) -> bool {
+    (segment.1 < segment.2) || ((segment.1 == segment.2) && segment.0 && segment.3)
 }
 
 /// A class used to represent intervals.
 #[pyclass]
 pub(crate) struct Interval {
-    sub_intervals: Vec<(bool, f64, f64, bool)>,
+    segments: Vec<(bool, f64, f64, bool)>,
 }
 
 #[pymethods]
 impl Interval {
     #[new]
-    fn py_new(sub_intervals: Option<Vec<(bool, f64, f64, bool)>>) -> PyResult<Self> {
-        match sub_intervals {
-            Some(mut some_sub_intervals) => {
+    fn py_new(segments: Option<Vec<(bool, f64, f64, bool)>>) -> PyResult<Self> {
+        match segments {
+            Some(mut some_segments) => {
                 let mut index = 0;
-                for i in 0..some_sub_intervals.len() {
-                    if some_sub_intervals[i].1.is_nan() || some_sub_intervals[i].2.is_nan() {
-                        return Err(PyValueError::new_err("Sub-interval points cannot be NaN"));
+                for i in 0..some_segments.len() {
+                    if some_segments[i].1.is_nan() || some_segments[i].2.is_nan() {
+                        return Err(PyValueError::new_err("Segment points cannot be NaN"));
                     }
-                    if (some_sub_intervals[i].1.is_infinite() && some_sub_intervals[i].0)
-                        || (some_sub_intervals[i].2.is_infinite() && some_sub_intervals[i].3)
+                    if (some_segments[i].1.is_infinite() && some_segments[i].0)
+                        || (some_segments[i].2.is_infinite() && some_segments[i].3)
                     {
                         return Err(PyValueError::new_err("Interval cannot contain inf"));
                     }
-                    if some_sub_intervals[i].1 > some_sub_intervals[i].2 {
+                    if some_segments[i].1 > some_segments[i].2 {
                         return Err(PyValueError::new_err(
-                            "Start point of sub-interval cannot be greater than its end point",
+                            "Start point of segment cannot be greater than its end point",
                         ));
                     }
 
-                    if !((some_sub_intervals[i].1 == some_sub_intervals[i].2)
-                        && (!some_sub_intervals[i].0 || !some_sub_intervals[i].3))
+                    if !((some_segments[i].1 == some_segments[i].2)
+                        && (!some_segments[i].0 || !some_segments[i].3))
                     {
-                        some_sub_intervals[index] = some_sub_intervals[i];
+                        some_segments[index] = some_segments[i];
                         index += 1;
                     }
                 }
-                some_sub_intervals.truncate(index);
+                some_segments.truncate(index);
 
-                merge_sub_intervals(&mut some_sub_intervals);
+                merge_segments(&mut some_segments);
                 Ok(Self {
-                    sub_intervals: some_sub_intervals,
+                    segments: some_segments,
                 })
             }
-            None => Ok(Self {
-                sub_intervals: vec![],
-            }),
+            None => Ok(Self { segments: vec![] }),
         }
     }
     /// Return a shallow copy of an Interval.
@@ -93,27 +95,27 @@ impl Interval {
     }
     /// Returns True if two Intervals do not overlap.
     fn isdisjoint(&self, other: &Self) -> bool {
-        let mut sub_intervals = self.sub_intervals.clone();
-        sub_intervals.extend(other.sub_intervals.iter());
-        sub_intervals.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
+        let mut segments = self.segments.clone();
+        segments.extend(other.segments.iter());
+        segments.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
         let mut index = 0;
-        for i in 1..sub_intervals.len() {
-            if (sub_intervals[index].2 > sub_intervals[i].1)
-                || ((sub_intervals[index].2 == sub_intervals[i].1)
+        for i in 1..segments.len() {
+            if (segments[index].2 > segments[i].1)
+                || ((segments[index].2 == segments[i].1)
             // check for strict overlap
-                    && ((sub_intervals[index].3) && (sub_intervals[i].0)))
+                    && ((segments[index].3) && (segments[i].0)))
             {
                 return false;
             } else {
                 index += 1;
-                sub_intervals[index] = sub_intervals[i];
+                segments[index] = segments[i];
             }
         }
         true
     }
     /// Return True if other contains this Interval, else False.
     fn issubset(&self, other: &Self) -> bool {
-        other.sub_intervals == other.__or__(self).sub_intervals
+        other.segments == other.__or__(self).segments
     }
     /// Return True if this Interval contains other, else False.
     fn issuperset(&self, other: &Self) -> bool {
@@ -128,10 +130,10 @@ impl Interval {
     #[args(others = "*")]
     fn union_update(&mut self, others: &PyTuple) -> PyResult<()> {
         let inputs: Vec<Self> = others.extract()?;
-        self.sub_intervals
-            .extend(inputs.iter().flat_map(|f| &f.sub_intervals));
+        self.segments
+            .extend(inputs.iter().flat_map(|f| &f.segments));
         if !inputs.is_empty() {
-            merge_sub_intervals(&mut self.sub_intervals);
+            merge_segments(&mut self.segments);
         }
         Ok(())
     }
@@ -141,43 +143,37 @@ impl Interval {
         output
     }
     fn __ior__(&mut self, other: &Self) {
-        self.sub_intervals.extend(other.sub_intervals.iter());
-        merge_sub_intervals(&mut self.sub_intervals);
+        self.segments.extend(other.segments.iter());
+        merge_segments(&mut self.segments);
     }
     fn __and__(&self, other: &Self) -> Self {
-        let mut output = Self {
-            sub_intervals: vec![],
-        };
+        let mut output = Self { segments: vec![] };
         let mut next_bound = 0;
         let mut bottom_bound;
-        for &x in &self.sub_intervals {
+        for &x in &self.segments {
             bottom_bound = next_bound;
-            for y in bottom_bound..other.sub_intervals.len() {
-                if (x.2 < other.sub_intervals[y].1)
-                    || ((x.2 == other.sub_intervals[y].1) && !(x.3 && other.sub_intervals[y].0))
+            for y in bottom_bound..other.segments.len() {
+                if (x.2 < other.segments[y].1)
+                    || ((x.2 == other.segments[y].1) && !(x.3 && other.segments[y].0))
                 {
                     break;
                 } else {
-                    let left = if (x.1 > other.sub_intervals[y].1)
-                        || ((x.1 == other.sub_intervals[y].1) && !x.0)
-                    {
-                        (x.0, x.1)
-                    } else {
-                        (other.sub_intervals[y].0, other.sub_intervals[y].1)
-                    };
+                    let left =
+                        if (x.1 > other.segments[y].1) || ((x.1 == other.segments[y].1) && !x.0) {
+                            (x.0, x.1)
+                        } else {
+                            (other.segments[y].0, other.segments[y].1)
+                        };
 
-                    let right = if (x.2 < other.sub_intervals[y].2)
-                        || ((x.2 == other.sub_intervals[y].2) && !x.3)
-                    {
-                        (x.2, x.3)
-                    } else {
-                        (other.sub_intervals[y].2, other.sub_intervals[y].3)
-                    };
+                    let right =
+                        if (x.2 < other.segments[y].2) || ((x.2 == other.segments[y].2) && !x.3) {
+                            (x.2, x.3)
+                        } else {
+                            (other.segments[y].2, other.segments[y].3)
+                        };
 
-                    if (left.1 < right.0) || ((left.1 == right.0) && left.0 && right.1) {
-                        output
-                            .sub_intervals
-                            .push((left.0, left.1, right.0, right.1));
+                    if validate_segment((left.0, left.1, right.0, right.1)) {
+                        output.segments.push((left.0, left.1, right.0, right.1));
                     }
 
                     next_bound = y;
@@ -187,17 +183,17 @@ impl Interval {
         output
     }
     fn __iand__(&mut self, other: &Self) {
-        self.sub_intervals = self.__and__(other).sub_intervals;
+        self.segments = self.__and__(other).segments;
     }
     fn __contains__(&self, item: f64) -> bool {
-        self.sub_intervals
+        self.segments
             .iter()
             .any(|&f| (f.1 < item && item < f.2) || ((item == f.1 && f.0) || (item == f.2 && f.3)))
     }
     fn __repr__(&self) -> String {
         format!(
             "Interval([{}])",
-            self.sub_intervals
+            self.segments
                 .iter()
                 .map(|&f| format!(
                     "({}, {}, {}, {})",
@@ -211,8 +207,8 @@ impl Interval {
         )
     }
     fn __str__(&self) -> String {
-        if !self.sub_intervals.is_empty() {
-            self.sub_intervals
+        if !self.segments.is_empty() {
+            self.segments
                 .iter()
                 .map(|&f| {
                     format!(
@@ -231,11 +227,11 @@ impl Interval {
     }
     fn __richcmp__(&self, other: &Self, op: CompareOp) -> bool {
         match op {
-            CompareOp::Eq => self.sub_intervals == other.sub_intervals,
-            CompareOp::Ne => self.sub_intervals != other.sub_intervals,
-            CompareOp::Lt => self.issubset(other) && (self.sub_intervals != other.sub_intervals),
+            CompareOp::Eq => self.segments == other.segments,
+            CompareOp::Ne => self.segments != other.segments,
+            CompareOp::Lt => self.issubset(other) && (self.segments != other.segments),
             CompareOp::Le => self.issubset(other),
-            CompareOp::Gt => self.issuperset(other) && (self.sub_intervals != other.sub_intervals),
+            CompareOp::Gt => self.issuperset(other) && (self.segments != other.segments),
             CompareOp::Ge => self.issuperset(other),
         }
     }
@@ -247,7 +243,7 @@ impl Interval {
 impl Clone for Interval {
     fn clone(&self) -> Self {
         Self {
-            sub_intervals: self.sub_intervals.clone(),
+            segments: self.segments.clone(),
         }
     }
 }

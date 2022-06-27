@@ -22,6 +22,7 @@ fn merge_segments(segments: &mut Vec<(i32, i32)>) {
 /// A class used to represent spans.
 #[pyclass]
 pub(crate) struct Span {
+    #[pyo3(get)]
     segments: Vec<(i32, i32)>,
 }
 

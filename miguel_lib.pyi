@@ -26,6 +26,8 @@ def utf16len(string: str) -> int:
 class Span:
     """A class used to represent spans."""
 
+    @property
+    def segments(self) -> List[Tuple[int, int]]: ...
     def __init__(self, segments: Optional[Sequence[Tuple[int, int]]] = ...) -> None: ...
     def copy(self) -> Span:
         """Return a shallow copy of a Span"""
@@ -57,6 +59,8 @@ class Span:
 class Interval:
     """A class used to represent intervals."""
 
+    @property
+    def segments(self) -> List[Tuple[bool, float, float, bool]]: ...
     def __init__(
         self, segments: Optional[Sequence[Tuple[bool, float, float, bool]]] = ...
     ) -> None: ...

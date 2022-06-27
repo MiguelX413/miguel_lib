@@ -35,6 +35,7 @@ fn validate_segment(segment: (bool, f64, f64, bool)) -> bool {
 /// A class used to represent intervals.
 #[pyclass]
 pub(crate) struct Interval {
+    #[pyo3(get)]
     segments: Vec<(bool, f64, f64, bool)>,
 }
 

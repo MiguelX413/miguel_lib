@@ -23,7 +23,7 @@ fn merge_segments(segments: &mut Vec<(i32, i32)>) {
 #[pyclass]
 pub(crate) struct Span {
     #[pyo3(get)]
-    segments: Vec<(i32, i32)>,
+    pub(crate) segments: Vec<(i32, i32)>,
 }
 
 #[pymethods]

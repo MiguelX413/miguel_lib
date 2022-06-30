@@ -1,4 +1,4 @@
-from typing import List, Optional, Sequence, Tuple
+from typing import List, Optional, Sequence, Tuple, Union
 
 __version__: str
 
@@ -62,7 +62,10 @@ class Interval:
     @property
     def segments(self) -> List[Tuple[bool, float, float, bool]]: ...
     def __init__(
-        self, segments: Optional[Sequence[Tuple[bool, float, float, bool]]] = ...
+        self,
+        segments_or_span: Optional[
+            Union[Sequence[Tuple[bool, float, float, bool]], Span]
+        ] = ...,
     ) -> None: ...
     def copy(self) -> Interval:
         """Return a shallow copy of an Interval"""

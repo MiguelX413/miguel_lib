@@ -51,43 +51,40 @@ impl Interval {
     #[new]
     fn py_new(segments_or_span: Option<SegmentsOrSpan>) -> PyResult<Self> {
         match segments_or_span {
-            Some(some) => match some {
-                SegmentsOrSpan::Segments(mut segments) => {
-                    let mut index = 0;
-                    for i in 0..segments.len() {
-                        if segments[i].1.is_nan() || segments[i].2.is_nan() {
-                            return Err(PyValueError::new_err("Segment points cannot be NaN"));
-                        }
-                        if (segments[i].1.is_infinite() && segments[i].0)
-                            || (segments[i].2.is_infinite() && segments[i].3)
-                        {
-                            return Err(PyValueError::new_err("Interval cannot contain inf"));
-                        }
-                        if segments[i].1 > segments[i].2 {
-                            return Err(PyValueError::new_err(
-                                "Start point of segment cannot be greater than its end point",
-                            ));
-                        }
-
-                        if !((segments[i].1 == segments[i].2) && (!segments[i].0 || !segments[i].3))
-                        {
-                            segments[index] = segments[i];
-                            index += 1;
-                        }
+            Some(SegmentsOrSpan::Segments(mut segments)) => {
+                let mut index = 0;
+                for i in 0..segments.len() {
+                    if segments[i].1.is_nan() || segments[i].2.is_nan() {
+                        return Err(PyValueError::new_err("Segment points cannot be NaN"));
                     }
-                    segments.truncate(index);
+                    if (segments[i].1.is_infinite() && segments[i].0)
+                        || (segments[i].2.is_infinite() && segments[i].3)
+                    {
+                        return Err(PyValueError::new_err("Interval cannot contain inf"));
+                    }
+                    if segments[i].1 > segments[i].2 {
+                        return Err(PyValueError::new_err(
+                            "Start point of segment cannot be greater than its end point",
+                        ));
+                    }
 
-                    merge_segments(&mut segments);
-                    Ok(Self { segments })
+                    if !((segments[i].1 == segments[i].2) && (!segments[i].0 || !segments[i].3)) {
+                        segments[index] = segments[i];
+                        index += 1;
+                    }
                 }
-                SegmentsOrSpan::Span(span) => Ok(Interval {
-                    segments: span
-                        .segments
-                        .iter()
-                        .map(|&segment| (true, segment.0 as f64, segment.1 as f64, true))
-                        .collect::<Vec<(bool, f64, f64, bool)>>(),
-                }),
-            },
+                segments.truncate(index);
+
+                merge_segments(&mut segments);
+                Ok(Self { segments })
+            }
+            Some(SegmentsOrSpan::Span(span)) => Ok(Interval {
+                segments: span
+                    .segments
+                    .iter()
+                    .map(|&segment| (true, segment.0 as f64, segment.1 as f64, true))
+                    .collect::<Vec<(bool, f64, f64, bool)>>(),
+            }),
             None => Ok(Self { segments: vec![] }),
         }
     }

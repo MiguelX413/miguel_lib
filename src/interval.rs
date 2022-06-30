@@ -78,7 +78,7 @@ impl Interval {
                 merge_segments(&mut segments);
                 Ok(Self { segments })
             }
-            Some(SegmentsOrSpan::Span(span)) => Ok(Interval {
+            Some(SegmentsOrSpan::Span(span)) => Ok(Self {
                 segments: span
                     .segments
                     .iter()

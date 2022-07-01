@@ -5,7 +5,7 @@ use std::cmp::{max, min};
 use pyo3::prelude::*;
 use pyo3::types::PyTuple;
 
-fn merge_segments(segments: &mut Vec<(i32, i32)>) {
+fn merge_segments(segments: &mut Vec<(i64, i64)>) {
     segments.sort_by_key(|&a| a.0);
     let mut index = 0;
     for i in 1..segments.len() {
@@ -23,13 +23,13 @@ fn merge_segments(segments: &mut Vec<(i32, i32)>) {
 #[pyclass]
 pub(crate) struct Span {
     #[pyo3(get)]
-    pub(crate) segments: Vec<(i32, i32)>,
+    pub(crate) segments: Vec<(i64, i64)>,
 }
 
 #[pymethods]
 impl Span {
     #[new]
-    fn py_new(segments: Option<Vec<(i32, i32)>>) -> PyResult<Self> {
+    fn py_new(segments: Option<Vec<(i64, i64)>>) -> PyResult<Self> {
         match segments {
             Some(mut f) => {
                 for segment in &f {
@@ -137,7 +137,7 @@ impl Span {
     fn __iand__(&mut self, other: &Self) {
         self.segments = self.__and__(other).segments;
     }
-    fn __contains__(&self, item: i32) -> bool {
+    fn __contains__(&self, item: i64) -> bool {
         self.segments.iter().any(|&f| f.0 <= item && item <= f.1)
     }
     fn __repr__(&self) -> String {

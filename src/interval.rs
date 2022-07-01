@@ -1,5 +1,6 @@
 use pyo3::basic::CompareOp;
 use pyo3::exceptions::PyValueError;
+use std::cmp::Ordering;
 
 use crate::Span;
 use pyo3::prelude::*;
@@ -11,8 +12,12 @@ enum SegmentsOrSpan {
     Span(Span),
 }
 
+fn interval_segment_cmp(a: &(bool, f64, f64, bool), b: &(bool, f64, f64, bool)) -> Ordering {
+    (a.1, !a.0).partial_cmp(&(b.1, !b.0)).unwrap()
+}
+
 fn merge_segments(segments: &mut Vec<(bool, f64, f64, bool)>) {
-    segments.sort_by(|a, b| (a.1, a.2).partial_cmp(&(b.1, b.2)).unwrap());
+    segments.sort_by(interval_segment_cmp);
     let mut index = 0;
     for i in 1..segments.len() {
         if (segments[index].2 > segments[i].1)
@@ -110,7 +115,7 @@ impl Interval {
     fn isdisjoint(&self, other: &Self) -> bool {
         let mut segments = self.segments.clone();
         segments.extend(other.segments.iter());
-        segments.sort_by(|a, b| (a.1, a.2).partial_cmp(&(b.1, b.2)).unwrap());
+        segments.sort_by(interval_segment_cmp);
         let mut index = 0;
         for i in 1..segments.len() {
             if (segments[index].2 > segments[i].1)

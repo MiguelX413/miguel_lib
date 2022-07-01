@@ -52,7 +52,7 @@ jobs:
         args: ${{ matrix.args }}
         target: ${{ matrix.target }}
     - name: Upload wheels
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: wheels
         path: dist
@@ -77,7 +77,7 @@ jobs:
         args: --release --no-sdist -o dist
         target: ${{ matrix.target }}
     - name: Upload wheels
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: wheels
         path: dist
@@ -86,22 +86,23 @@ jobs:
     strategy:
       matrix:
         pyversion: ['3.7']
-        arch: [x64, x86]
+        arch: ['x64', 'x86', 'aarch64']
         args: ['--release --no-sdist -o dist']
         include:
           - pyversion: 'pypy3.7'
-            arch: x64
+            arch: 'x64'
             args: '-i pypy3 --release --no-sdist -o dist'
           - pyversion: 'pypy3.8'
-            arch: x64
+            arch: 'x64'
             args: '-i pypy3 --release --no-sdist -o dist'
           - pyversion: 'pypy3.9'
-            arch: x64
+            arch: 'x64'
             args: '-i pypy3 --release --no-sdist -o dist'
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v4
+      if: matrix.arch != 'aarch64'
       with:
         python-version: ${{ matrix.pyversion }}
         architecture: ${{ matrix.arch }}
@@ -111,7 +112,7 @@ jobs:
         args: ${{ matrix.args }}
         target: ${{ matrix.arch }}
     - name: Upload wheels
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: wheels
         path: dist
@@ -139,7 +140,7 @@ jobs:
         command: build
         args: ${{ matrix.args }}
     - name: Upload wheels
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: wheels
         path: dist

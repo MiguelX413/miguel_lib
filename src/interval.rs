@@ -12,7 +12,7 @@ enum SegmentsOrSpan {
 }
 
 fn merge_segments(segments: &mut Vec<(bool, f64, f64, bool)>) {
-    segments.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
+    segments.sort_by(|a, b| (a.1, a.2).partial_cmp(&(b.1, b.2)).unwrap());
     let mut index = 0;
     for i in 1..segments.len() {
         if (segments[index].2 > segments[i].1)
@@ -110,7 +110,7 @@ impl Interval {
     fn isdisjoint(&self, other: &Self) -> bool {
         let mut segments = self.segments.clone();
         segments.extend(other.segments.iter());
-        segments.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
+        segments.sort_by(|a, b| (a.1, a.2).partial_cmp(&(b.1, b.2)).unwrap());
         let mut index = 0;
         for i in 1..segments.len() {
             if (segments[index].2 > segments[i].1)

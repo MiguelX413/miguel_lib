@@ -56,32 +56,27 @@ impl Interval {
     #[new]
     fn py_new(segments_or_span: Option<SegmentsOrSpan>) -> PyResult<Self> {
         match segments_or_span {
-            Some(SegmentsOrSpan::Segments(mut segments)) => {
-                let mut index = 0;
-                for i in 0..segments.len() {
-                    if segments[i].1.is_nan() || segments[i].2.is_nan() {
-                        return Err(PyValueError::new_err("Segment points cannot be NaN"));
-                    }
-                    if (segments[i].1.is_infinite() && segments[i].0)
-                        || (segments[i].2.is_infinite() && segments[i].3)
-                    {
-                        return Err(PyValueError::new_err("Interval cannot contain inf"));
-                    }
-                    if segments[i].1 > segments[i].2 {
-                        return Err(PyValueError::new_err(
+            Some(SegmentsOrSpan::Segments(segments)) => {
+                let mut output = segments
+                    .iter()
+                    .filter(|&&f| !((f.1 == f.2) && (!f.0 || !f.3)))
+                    .map(|&f| match f {
+                        g if g.1.is_nan() || g.2.is_nan() => {
+                            Err(PyValueError::new_err("Segment points cannot be NaN"))
+                        }
+                        g if (g.1.is_infinite() && g.0) || (g.2.is_infinite() && g.3) => {
+                            Err(PyValueError::new_err("Interval cannot contain inf"))
+                        }
+                        g if g.1 > g.2 => Err(PyValueError::new_err(
                             "Start point of segment cannot be greater than its end point",
-                        ));
-                    }
+                        )),
 
-                    if !((segments[i].1 == segments[i].2) && (!segments[i].0 || !segments[i].3)) {
-                        segments[index] = segments[i];
-                        index += 1;
-                    }
-                }
-                segments.truncate(index);
+                        g => Ok(g),
+                    })
+                    .collect::<PyResult<Vec<(bool, f64, f64, bool)>>>()?;
 
-                merge_segments(&mut segments);
-                Ok(Self { segments })
+                merge_segments(&mut output);
+                Ok(Self { segments: output })
             }
             Some(SegmentsOrSpan::Span(span)) => Ok(Self {
                 segments: span

@@ -153,32 +153,36 @@ impl Span {
         merge_segments(&mut self.segments);
     }
     fn __sub__(&self, other: &Self) -> Self {
-        let mut output = Self { segments: vec![] };
-        let mut next_bound = 0;
-        let mut bottom_bound;
-        for &x in &self.segments {
-            let mut temp_left_bound = x.0;
-            bottom_bound = next_bound;
-            for y in bottom_bound..other.segments.len() {
-                if x.1 < other.segments[y].0 {
-                    break;
-                } else {
-                    if temp_left_bound < other.segments[y].0 {
-                        output
-                            .segments
-                            .push((temp_left_bound, other.segments[y].0 - 1));
+        if !other.segments.is_empty() {
+            let mut output = Self { segments: vec![] };
+            let mut next_bound = 0;
+            let mut bottom_bound;
+            for &x in &self.segments {
+                let mut temp_left_bound = x.0;
+                bottom_bound = next_bound;
+                for y in bottom_bound..other.segments.len() {
+                    if x.1 < other.segments[y].0 {
+                        break;
+                    } else {
+                        if temp_left_bound < other.segments[y].0 {
+                            output
+                                .segments
+                                .push((temp_left_bound, other.segments[y].0 - 1));
+                        }
+                        if temp_left_bound < other.segments[y].1 + 1 {
+                            temp_left_bound = other.segments[y].1 + 1;
+                        }
+                        next_bound = y + 1;
                     }
-                    if temp_left_bound < other.segments[y].1 + 1 {
-                        temp_left_bound = other.segments[y].1 + 1;
-                    }
-                    next_bound = y + 1;
+                }
+                if temp_left_bound <= x.1 {
+                    output.segments.push((temp_left_bound, x.1));
                 }
             }
-            if temp_left_bound <= x.1 {
-                output.segments.push((temp_left_bound, x.1));
-            }
+            output
+        } else {
+            self.clone()
         }
-        output
     }
     fn __isub__(&mut self, other: &Self) {
         self.segments = self.__sub__(other).segments;

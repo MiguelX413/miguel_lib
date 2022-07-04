@@ -31,17 +31,21 @@ impl Span {
     #[new]
     fn py_new(segments: Option<Vec<(i64, i64)>>) -> PyResult<Self> {
         match segments {
-            Some(mut f) => {
-                for segment in &f {
-                    if segment.0 > segment.1 {
-                        return Err(PyValueError::new_err(
-                            "Start point of segment cannot be greater than its end point",
-                        ));
-                    }
-                }
+            Some(some) => {
+                let mut output = some
+                    .iter()
+                    .map(|&f| {
+                        if f.0 > f.1 {
+                            return Err(PyValueError::new_err(
+                                "Start point of segment cannot be greater than its end point",
+                            ));
+                        }
+                        Ok(f)
+                    })
+                    .collect::<PyResult<Vec<(i64, i64)>>>()?;
 
-                merge_segments(&mut f);
-                Ok(Self { segments: f })
+                merge_segments(&mut output);
+                Ok(Self { segments: output })
             }
             None => Ok(Self { segments: vec![] }),
         }

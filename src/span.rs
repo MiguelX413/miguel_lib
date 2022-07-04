@@ -55,6 +55,17 @@ impl Span {
         self.clone()
     }
     #[args(others = "*")]
+    fn difference(&self, others: &PyTuple) -> PyResult<Self> {
+        let mut output = self.clone();
+        output.difference_update(others)?;
+        Ok(output)
+    }
+    #[args(others = "*")]
+    fn difference_update(&mut self, others: &PyTuple) -> PyResult<()> {
+        self.__isub__(&(Self { segments: vec![] }.union(others)?));
+        Ok(())
+    }
+    #[args(others = "*")]
     fn intersection(&self, others: &PyTuple) -> PyResult<Self> {
         let mut output = self.clone();
         output.intersection_update(others)?;
@@ -140,6 +151,37 @@ impl Span {
     }
     fn __iand__(&mut self, other: &Self) {
         self.segments = self.__and__(other).segments;
+    }
+    fn __sub__(&self, other: &Self) -> Self {
+        let mut output = Self { segments: vec![] };
+        let mut next_bound = 0;
+        let mut bottom_bound;
+        for &x in &self.segments {
+            let mut temp_left_bound = x.0;
+            bottom_bound = next_bound;
+            for y in bottom_bound..other.segments.len() {
+                if x.1 < other.segments[y].0 {
+                    break;
+                } else {
+                    if temp_left_bound < other.segments[y].0 {
+                        output
+                            .segments
+                            .push((temp_left_bound, other.segments[y].0 - 1));
+                    }
+                    if temp_left_bound < other.segments[y].1 + 1 {
+                        temp_left_bound = other.segments[y].1 + 1;
+                    }
+                    next_bound = y + 1;
+                }
+            }
+            if temp_left_bound <= x.1 {
+                output.segments.push((temp_left_bound, x.1));
+            }
+        }
+        output
+    }
+    fn __isub__(&mut self, other: &Self) {
+        self.segments = self.__sub__(other).segments;
     }
     fn __contains__(&self, item: i64) -> bool {
         self.segments.iter().any(|&f| f.0 <= item && item <= f.1)

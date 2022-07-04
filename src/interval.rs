@@ -98,6 +98,17 @@ impl Interval {
         self.clone()
     }
     #[args(others = "*")]
+    fn difference(&self, others: &PyTuple) -> PyResult<Self> {
+        let mut output = self.clone();
+        output.difference_update(others)?;
+        Ok(output)
+    }
+    #[args(others = "*")]
+    fn difference_update(&mut self, others: &PyTuple) -> PyResult<()> {
+        self.__isub__(&(Self { segments: vec![] }.union(others)?));
+        Ok(())
+    }
+    #[args(others = "*")]
     fn intersection(&self, others: &PyTuple) -> PyResult<Self> {
         let mut output = self.clone();
         output.intersection_update(others)?;
@@ -202,6 +213,46 @@ impl Interval {
     }
     fn __iand__(&mut self, other: &Self) {
         self.segments = self.__and__(other).segments;
+    }
+    fn __sub__(&self, other: &Self) -> Self {
+        let mut output = Self { segments: vec![] };
+        let mut next_bound = 0;
+        let mut bottom_bound;
+        for &x in &self.segments {
+            let mut temp_left_bound = (x.0, x.1);
+            bottom_bound = next_bound;
+            for y in bottom_bound..other.segments.len() {
+                if (x.2 < other.segments[y].1)
+                    || ((x.2 == other.segments[y].1) && !(x.3 && other.segments[y].0))
+                {
+                    break;
+                } else {
+                    let temp = (
+                        temp_left_bound.0,
+                        temp_left_bound.1,
+                        other.segments[y].1,
+                        !other.segments[y].0,
+                    );
+                    if validate_segment(temp) {
+                        output.segments.push(temp);
+                    }
+                    if (temp_left_bound.1 < other.segments[y].2)
+                        || ((temp_left_bound.1 == other.segments[y].2) && temp_left_bound.0)
+                    {
+                        temp_left_bound = (!other.segments[y].3, other.segments[y].2);
+                    }
+                    next_bound = y + 1;
+                }
+            }
+            let last_segment = (temp_left_bound.0, temp_left_bound.1, x.2, x.3);
+            if validate_segment(last_segment) {
+                output.segments.push(last_segment);
+            }
+        }
+        output
+    }
+    fn __isub__(&mut self, other: &Self) {
+        self.segments = self.__sub__(other).segments;
     }
     fn __contains__(&self, item: f64) -> bool {
         self.segments

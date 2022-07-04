@@ -119,15 +119,6 @@ impl Span {
         }
         Ok(())
     }
-    fn __or__(&self, other: &Self) -> Self {
-        let mut output = self.clone();
-        output.__ior__(other);
-        output
-    }
-    fn __ior__(&mut self, other: &Self) {
-        self.segments.extend(other.segments.iter());
-        merge_segments(&mut self.segments);
-    }
     fn __and__(&self, other: &Self) -> Self {
         let mut output = Self { segments: vec![] };
         let mut next_bound = 0;
@@ -151,6 +142,15 @@ impl Span {
     }
     fn __iand__(&mut self, other: &Self) {
         self.segments = self.__and__(other).segments;
+    }
+    fn __or__(&self, other: &Self) -> Self {
+        let mut output = self.clone();
+        output.__ior__(other);
+        output
+    }
+    fn __ior__(&mut self, other: &Self) {
+        self.segments.extend(other.segments.iter());
+        merge_segments(&mut self.segments);
     }
     fn __sub__(&self, other: &Self) -> Self {
         let mut output = Self { segments: vec![] };

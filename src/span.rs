@@ -188,7 +188,7 @@ impl Span {
         self.segments = self.__sub__(other).segments;
     }
     fn __contains__(&self, item: i64) -> bool {
-        self.segments.iter().any(|&f| f.0 <= item && item <= f.1)
+        self.segments.iter().any(|&f| (f.0 <= item) & (item <= f.1))
     }
     fn __repr__(&self) -> String {
         format!(
@@ -215,9 +215,9 @@ impl Span {
         match op {
             CompareOp::Eq => self.segments == other.segments,
             CompareOp::Ne => self.segments != other.segments,
-            CompareOp::Lt => self.issubset(other) && (self.segments != other.segments),
+            CompareOp::Lt => self.issubset(other) & (self.segments != other.segments),
             CompareOp::Le => self.issubset(other),
-            CompareOp::Gt => self.issuperset(other) && (self.segments != other.segments),
+            CompareOp::Gt => self.issuperset(other) & (self.segments != other.segments),
             CompareOp::Ge => self.issuperset(other),
         }
     }

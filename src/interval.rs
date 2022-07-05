@@ -21,13 +21,13 @@ fn merge_segments(segments: &mut Vec<(bool, f64, f64, bool)>) {
     let mut index = 0;
     for i in 1..segments.len() {
         if (segments[index].2 > segments[i].1)
-            || ((segments[index].2 == segments[i].1)
+            | ((segments[index].2 == segments[i].1)
         // check for adjacence
-                && ((segments[index].3) || (segments[i].0)))
+                & ((segments[index].3) | (segments[i].0)))
         {
             // emulate max()
             if (segments[i].2 > segments[index].2)
-                || ((segments[i].2 == segments[index].2) && (segments[i].3))
+                | ((segments[i].2 == segments[index].2) & (segments[i].3))
             {
                 segments[index].2 = segments[i].2;
                 segments[index].3 = segments[i].3;
@@ -41,7 +41,7 @@ fn merge_segments(segments: &mut Vec<(bool, f64, f64, bool)>) {
 }
 
 fn validate_segment(segment: (bool, f64, f64, bool)) -> bool {
-    (segment.1 < segment.2) || ((segment.1 == segment.2) && segment.0 && segment.3)
+    (segment.1 < segment.2) | ((segment.1 == segment.2) & segment.0 & segment.3)
 }
 
 /// A class used to represent intervals.
@@ -60,12 +60,12 @@ impl Interval {
                 let mut output = segments
                     .iter()
                     .filter_map(|&f| {
-                        if f.1.is_nan() || f.2.is_nan() {
+                        if f.1.is_nan() | f.2.is_nan() {
                             return Some(Err(PyValueError::new_err(
                                 "Segment points cannot be NaN",
                             )));
                         }
-                        if (f.1.is_infinite() && f.0) || (f.2.is_infinite() && f.3) {
+                        if (f.1.is_infinite() & f.0) | (f.2.is_infinite() & f.3) {
                             return Some(Err(PyValueError::new_err("Interval cannot contain inf")));
                         }
                         if f.1 > f.2 {
@@ -73,7 +73,7 @@ impl Interval {
                                 "Start point of segment cannot be greater than its end point",
                             )));
                         }
-                        if (f.1 == f.2) && (!f.0 || !f.3) {
+                        if (f.1 == f.2) & (!f.0 | !f.3) {
                             return None;
                         }
                         Some(Ok(f))
@@ -130,9 +130,9 @@ impl Interval {
         let mut index = 0;
         for i in 1..segments.len() {
             if (segments[index].2 > segments[i].1)
-                || ((segments[index].2 == segments[i].1)
+                | ((segments[index].2 == segments[i].1)
             // check for strict overlap
-                    && ((segments[index].3) && (segments[i].0)))
+                    & ((segments[index].3) & (segments[i].0)))
             {
                 return false;
             } else {
@@ -174,19 +174,19 @@ impl Interval {
             bottom_bound = next_bound;
             for y in bottom_bound..other.segments.len() {
                 if (x.2 < other.segments[y].1)
-                    || ((x.2 == other.segments[y].1) && !(x.3 && other.segments[y].0))
+                    | ((x.2 == other.segments[y].1) & !(x.3 & other.segments[y].0))
                 {
                     break;
                 } else {
                     let left =
-                        if (x.1 > other.segments[y].1) || ((x.1 == other.segments[y].1) && !x.0) {
+                        if (x.1 > other.segments[y].1) | ((x.1 == other.segments[y].1) & !x.0) {
                             (x.0, x.1)
                         } else {
                             (other.segments[y].0, other.segments[y].1)
                         };
 
                     let right =
-                        if (x.2 < other.segments[y].2) || ((x.2 == other.segments[y].2) && !x.3) {
+                        if (x.2 < other.segments[y].2) | ((x.2 == other.segments[y].2) & !x.3) {
                             (x.2, x.3)
                         } else {
                             (other.segments[y].2, other.segments[y].3)
@@ -224,7 +224,7 @@ impl Interval {
                 bottom_bound = next_bound;
                 for y in bottom_bound..other.segments.len() {
                     if (x.2 < other.segments[y].1)
-                        || ((x.2 == other.segments[y].1) && !(x.3 && other.segments[y].0))
+                        | ((x.2 == other.segments[y].1) & !(x.3 & other.segments[y].0))
                     {
                         break;
                     } else {
@@ -238,7 +238,7 @@ impl Interval {
                             output.segments.push(temp);
                         }
                         if (temp_left_bound.1 < other.segments[y].2)
-                            || ((temp_left_bound.1 == other.segments[y].2) && temp_left_bound.0)
+                            | ((temp_left_bound.1 == other.segments[y].2) & temp_left_bound.0)
                         {
                             temp_left_bound = (!other.segments[y].3, other.segments[y].2);
                         }
@@ -259,9 +259,9 @@ impl Interval {
         self.segments = self.__sub__(other).segments;
     }
     fn __contains__(&self, item: f64) -> bool {
-        self.segments
-            .iter()
-            .any(|&f| (f.1 < item && item < f.2) || ((item == f.1 && f.0) || (item == f.2 && f.3)))
+        self.segments.iter().any(|&f| {
+            ((f.1 < item) & (item < f.2)) | (((item == f.1) & f.0) | ((item == f.2) & f.3))
+        })
     }
     fn __repr__(&self) -> String {
         format!(
@@ -302,9 +302,9 @@ impl Interval {
         match op {
             CompareOp::Eq => self.segments == other.segments,
             CompareOp::Ne => self.segments != other.segments,
-            CompareOp::Lt => self.issubset(other) && (self.segments != other.segments),
+            CompareOp::Lt => self.issubset(other) & (self.segments != other.segments),
             CompareOp::Le => self.issubset(other),
-            CompareOp::Gt => self.issuperset(other) && (self.segments != other.segments),
+            CompareOp::Gt => self.issuperset(other) & (self.segments != other.segments),
             CompareOp::Ge => self.issuperset(other),
         }
     }

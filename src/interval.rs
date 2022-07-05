@@ -65,13 +65,13 @@ impl Interval {
                                 "Segment points cannot be NaN",
                             )));
                         }
-                        if (f.1.is_infinite() & f.0) | (f.2.is_infinite() & f.3) {
-                            return Some(Err(PyValueError::new_err("Interval cannot contain inf")));
-                        }
                         if f.1 > f.2 {
                             return Some(Err(PyValueError::new_err(
                                 "Start point of segment cannot be greater than its end point",
                             )));
+                        }
+                        if (f.1.is_infinite() & f.0) | (f.2.is_infinite() & f.3) {
+                            return Some(Err(PyValueError::new_err("Interval cannot contain inf")));
                         }
                         if (f.1 == f.2) & (!f.0 | !f.3) {
                             return None;

@@ -1,4 +1,6 @@
-from typing import List, Optional, Sequence, Tuple, Union
+from typing import List, Optional, Sequence, Tuple, TypeVar, Union
+
+T = TypeVar("T")
 
 __version__: str
 
@@ -19,6 +21,9 @@ def rmatch_utf16_indices(string: str, substring: str) -> List[int]:
 
 def rmatch_byte_indices(string: str, substring: str) -> List[int]:
     """Returns a list of the byte indices of disjoint matches, from end to start."""
+
+def chunks(input: List[T], num: int) -> List[List[T]]:
+    """Splits a given list into lists of num size."""
 
 def utf16len(string: str) -> int:
     """A function that returns the UTF-16 length of a string."""

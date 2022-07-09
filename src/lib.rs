@@ -93,6 +93,15 @@ fn rmatch_byte_indices(string: &str, substring: &str) -> Vec<usize> {
         .collect::<Vec<usize>>()
 }
 
+/// Splits a given list into lists of num size.
+#[pyfunction]
+fn chunks(input: Vec<&PyAny>, num: usize) -> Vec<Vec<&PyAny>> {
+    input
+        .chunks(num)
+        .map(|f| f.into())
+        .collect::<Vec<Vec<&PyAny>>>()
+}
+
 /// A function that returns the UTF-16 length of a string.
 #[pyfunction]
 fn utf16len(string: &str) -> usize {
@@ -108,6 +117,7 @@ fn miguel_lib(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(rmatch_indices, m)?)?;
     m.add_function(wrap_pyfunction!(rmatch_utf16_indices, m)?)?;
     m.add_function(wrap_pyfunction!(rmatch_byte_indices, m)?)?;
+    m.add_function(wrap_pyfunction!(chunks, m)?)?;
     m.add_function(wrap_pyfunction!(utf16len, m)?)?;
     m.add_class::<Span>()?;
     m.add_class::<Interval>()?;

@@ -45,7 +45,7 @@ fn merge_segments(segments: &mut Segments) {
     segments.truncate(index + 1);
 }
 
-fn validate_segment(segment: Segment) -> bool {
+fn validate_segment(segment: &Segment) -> bool {
     (segment.1 < segment.2) | ((segment.1 == segment.2) & segment.0 & segment.3)
 }
 
@@ -198,7 +198,7 @@ impl Interval {
                             (other.segments[y].2, other.segments[y].3)
                         };
 
-                    if validate_segment((left.0, left.1, right.0, right.1)) {
+                    if validate_segment(&(left.0, left.1, right.0, right.1)) {
                         output.segments.push((left.0, left.1, right.0, right.1));
                     }
 
@@ -240,7 +240,7 @@ impl Interval {
                             other.segments[y].1,
                             !other.segments[y].0,
                         );
-                        if validate_segment(temp) {
+                        if validate_segment(&temp) {
                             output.segments.push(temp);
                         }
                         if (temp_left_bound.1 < other.segments[y].2)
@@ -252,7 +252,7 @@ impl Interval {
                     }
                 }
                 let last_segment = (temp_left_bound.0, temp_left_bound.1, x.2, x.3);
-                if validate_segment(last_segment) {
+                if validate_segment(&last_segment) {
                     output.segments.push(last_segment);
                 }
             }

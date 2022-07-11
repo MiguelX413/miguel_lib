@@ -5,6 +5,12 @@ use std::cmp::{max, min};
 use pyo3::prelude::*;
 use pyo3::types::PyTuple;
 
+#[derive(FromPyObject)]
+enum SegmentsOrSpan {
+    Segments(Vec<(i64, i64)>),
+    Span(Span),
+}
+
 fn merge_segments(segments: &mut Vec<(i64, i64)>) {
     segments.sort_by_key(|&a| a.0);
     let mut index = 0;
@@ -29,10 +35,10 @@ pub(crate) struct Span {
 #[pymethods]
 impl Span {
     #[new]
-    fn py_new(segments: Option<Vec<(i64, i64)>>) -> PyResult<Self> {
-        match segments {
-            Some(some) => {
-                let mut output = some
+    fn py_new(segments_or_span: Option<SegmentsOrSpan>) -> PyResult<Self> {
+        match segments_or_span {
+            Some(SegmentsOrSpan::Segments(segments)) => {
+                let mut output = segments
                     .iter()
                     .map(|&f| {
                         if f.0 > f.1 {
@@ -47,6 +53,7 @@ impl Span {
                 merge_segments(&mut output);
                 Ok(Self { segments: output })
             }
+            Some(SegmentsOrSpan::Span(span)) => Ok(span),
             None => Ok(Self { segments: vec![] }),
         }
     }

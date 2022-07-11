@@ -7,9 +7,10 @@ use pyo3::prelude::*;
 use pyo3::types::PyTuple;
 
 #[derive(FromPyObject)]
-enum SegmentsOrSpan {
+enum SegmentsSpanOrInterval {
     Segments(Vec<(bool, f64, f64, bool)>),
     Span(Span),
+    Interval(Interval),
 }
 
 fn interval_segment_cmp(a: &(bool, f64, f64, bool), b: &(bool, f64, f64, bool)) -> Ordering {
@@ -54,9 +55,9 @@ pub(crate) struct Interval {
 #[pymethods]
 impl Interval {
     #[new]
-    fn py_new(segments_or_span: Option<SegmentsOrSpan>) -> PyResult<Self> {
-        match segments_or_span {
-            Some(SegmentsOrSpan::Segments(segments)) => {
+    fn py_new(segments_span_or_interval: Option<SegmentsSpanOrInterval>) -> PyResult<Self> {
+        match segments_span_or_interval {
+            Some(SegmentsSpanOrInterval::Segments(segments)) => {
                 let mut output = segments
                     .iter()
                     .filter_map(|&f| {
@@ -83,13 +84,14 @@ impl Interval {
                 merge_segments(&mut output);
                 Ok(Self { segments: output })
             }
-            Some(SegmentsOrSpan::Span(span)) => Ok(Self {
+            Some(SegmentsSpanOrInterval::Span(span)) => Ok(Self {
                 segments: span
                     .segments
                     .iter()
                     .map(|&segment| (true, segment.0 as f64, segment.1 as f64, true))
                     .collect::<Vec<(bool, f64, f64, bool)>>(),
             }),
+            Some(SegmentsSpanOrInterval::Interval(interval)) => Ok(interval),
             None => Ok(Self { segments: vec![] }),
         }
     }

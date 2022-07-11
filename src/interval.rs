@@ -6,18 +6,22 @@ use crate::Span;
 use pyo3::prelude::*;
 use pyo3::types::PyTuple;
 
+type Segment = (bool, f64, f64, bool);
+
+type Segments = Vec<Segment>;
+
 #[derive(FromPyObject)]
 enum SegmentsSpanOrInterval {
-    Segments(Vec<(bool, f64, f64, bool)>),
+    Segments(Segments),
     Span(Span),
     Interval(Interval),
 }
 
-fn interval_segment_cmp(a: &(bool, f64, f64, bool), b: &(bool, f64, f64, bool)) -> Ordering {
+fn interval_segment_cmp(a: &Segment, b: &Segment) -> Ordering {
     (a.1, !a.0).partial_cmp(&(b.1, !b.0)).unwrap()
 }
 
-fn merge_segments(segments: &mut Vec<(bool, f64, f64, bool)>) {
+fn merge_segments(segments: &mut Segments) {
     segments.sort_by(interval_segment_cmp);
     let mut index = 0;
     for i in 1..segments.len() {
@@ -41,7 +45,7 @@ fn merge_segments(segments: &mut Vec<(bool, f64, f64, bool)>) {
     segments.truncate(index + 1);
 }
 
-fn validate_segment(segment: (bool, f64, f64, bool)) -> bool {
+fn validate_segment(segment: Segment) -> bool {
     (segment.1 < segment.2) | ((segment.1 == segment.2) & segment.0 & segment.3)
 }
 
@@ -49,7 +53,7 @@ fn validate_segment(segment: (bool, f64, f64, bool)) -> bool {
 #[pyclass]
 pub(crate) struct Interval {
     #[pyo3(get)]
-    segments: Vec<(bool, f64, f64, bool)>,
+    segments: Segments,
 }
 
 #[pymethods]
@@ -79,7 +83,7 @@ impl Interval {
                         }
                         Some(Ok(f))
                     })
-                    .collect::<PyResult<Vec<(bool, f64, f64, bool)>>>()?;
+                    .collect::<PyResult<Segments>>()?;
 
                 merge_segments(&mut output);
                 Ok(Self { segments: output })
@@ -89,7 +93,7 @@ impl Interval {
                     .segments
                     .iter()
                     .map(|&segment| (true, segment.0 as f64, segment.1 as f64, true))
-                    .collect::<Vec<(bool, f64, f64, bool)>>(),
+                    .collect::<Segments>(),
             }),
             Some(SegmentsSpanOrInterval::Interval(interval)) => Ok(interval),
             None => Ok(Self { segments: vec![] }),

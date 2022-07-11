@@ -5,13 +5,17 @@ use std::cmp::{max, min};
 use pyo3::prelude::*;
 use pyo3::types::PyTuple;
 
+type Segment = (i64, i64);
+
+type Segments = Vec<Segment>;
+
 #[derive(FromPyObject)]
 enum SegmentsOrSpan {
-    Segments(Vec<(i64, i64)>),
+    Segments(Segments),
     Span(Span),
 }
 
-fn merge_segments(segments: &mut Vec<(i64, i64)>) {
+fn merge_segments(segments: &mut Segments) {
     segments.sort_by_key(|&a| a.0);
     let mut index = 0;
     for i in 1..segments.len() {
@@ -29,7 +33,7 @@ fn merge_segments(segments: &mut Vec<(i64, i64)>) {
 #[pyclass]
 pub(crate) struct Span {
     #[pyo3(get)]
-    pub(crate) segments: Vec<(i64, i64)>,
+    pub(crate) segments: Segments,
 }
 
 #[pymethods]
@@ -48,7 +52,7 @@ impl Span {
                         }
                         Ok(f)
                     })
-                    .collect::<PyResult<Vec<(i64, i64)>>>()?;
+                    .collect::<PyResult<Segments>>()?;
 
                 merge_segments(&mut output);
                 Ok(Self { segments: output })

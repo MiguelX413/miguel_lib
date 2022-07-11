@@ -244,3 +244,8 @@ impl Clone for Span {
         }
     }
 }
+
+pub(crate) fn register(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
+    m.add_class::<Span>()?;
+    Ok(())
+}

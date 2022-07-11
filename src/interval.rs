@@ -326,3 +326,8 @@ impl Clone for Interval {
         }
     }
 }
+
+pub(crate) fn register(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
+    m.add_class::<Interval>()?;
+    Ok(())
+}

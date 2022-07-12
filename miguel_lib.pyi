@@ -1,4 +1,4 @@
-from typing import List, Optional, Sequence, Tuple, Union
+from typing import List, Optional, Sequence, Tuple, Union, Protocol
 
 __version__: str
 
@@ -23,13 +23,16 @@ def rmatch_byte_indices(string: str, substring: str) -> List[int]:
 def utf16len(string: str) -> int:
     """A function that returns the UTF-16 length of a string."""
 
+class SupportsSpan(Protocol):
+    def __span__(self) -> Span: ...
+
 class Span:
     """A class used to represent spans."""
 
     @property
     def segments(self) -> List[Tuple[int, int]]: ...
     def __new__(
-        cls, segments_or_span: Optional[Union[Sequence[Tuple[int, int]], Span]] = ...
+        cls, input: Optional[Union[Sequence[Tuple[int, int]], Span, SupportsSpan]] = ...
     ) -> Span: ...
     def copy(self) -> Span:
         """Return a shallow copy of a Span"""
@@ -62,6 +65,9 @@ class Span:
     def __ge__(self, other: Span) -> bool: ...
     __hash__: None  # type: ignore
 
+class SupportsInterval(Protocol):
+    def __interval__(self) -> Interval: ...
+
 class Interval:
     """A class used to represent intervals."""
 
@@ -69,8 +75,13 @@ class Interval:
     def segments(self) -> List[Tuple[bool, float, float, bool]]: ...
     def __new__(
         cls,
-        segments_span_or_interval: Optional[
-            Union[Sequence[Tuple[bool, float, float, bool]], Span, Interval]
+        input: Optional[
+            Union[
+                Sequence[Tuple[bool, float, float, bool]],
+                Span,
+                Interval,
+                SupportsInterval,
+            ]
         ] = ...,
     ) -> Interval: ...
     def copy(self) -> Interval:

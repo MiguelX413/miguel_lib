@@ -11,10 +11,11 @@ type Segment = (bool, f64, f64, bool);
 type Segments = Vec<Segment>;
 
 #[derive(FromPyObject)]
-enum SegmentsSpanOrInterval {
+enum IntervalInput<'a> {
     Segments(Segments),
     Span(Span),
     Interval(Interval),
+    PyAny(&'a PyAny),
 }
 
 fn interval_segment_cmp(a: &Segment, b: &Segment) -> Ordering {
@@ -59,9 +60,9 @@ pub(crate) struct Interval {
 #[pymethods]
 impl Interval {
     #[new]
-    fn py_new(segments_span_or_interval: Option<SegmentsSpanOrInterval>) -> PyResult<Self> {
-        match segments_span_or_interval {
-            Some(SegmentsSpanOrInterval::Segments(segments)) => {
+    fn py_new(input: Option<IntervalInput>) -> PyResult<Self> {
+        match input {
+            Some(IntervalInput::Segments(segments)) => {
                 let mut output = segments
                     .iter()
                     .filter_map(|&f| {
@@ -88,15 +89,18 @@ impl Interval {
                 merge_segments(&mut output);
                 Ok(Self { segments: output })
             }
-            Some(SegmentsSpanOrInterval::Span(span)) => Ok(Self {
+            Some(IntervalInput::Span(span)) => Ok(Self {
                 segments: span
                     .segments
                     .iter()
                     .map(|&segment| (true, segment.0 as f64, segment.1 as f64, true))
                     .collect::<Segments>(),
             }),
-            Some(SegmentsSpanOrInterval::Interval(interval)) => Ok(interval),
+            Some(IntervalInput::Interval(interval)) => Ok(interval),
             None => Ok(Self { segments: vec![] }),
+            Some(IntervalInput::PyAny(py_any)) => {
+                Ok(py_any.call_method0("__interval__")?.extract::<Self>()?)
+            }
         }
     }
     /// Return a shallow copy of an Interval.

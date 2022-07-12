@@ -10,9 +10,10 @@ type Segment = (i64, i64);
 type Segments = Vec<Segment>;
 
 #[derive(FromPyObject)]
-enum SegmentsOrSpan {
+enum SpanInput<'a> {
     Segments(Segments),
     Span(Span),
+    PyAny(&'a PyAny),
 }
 
 fn merge_segments(segments: &mut Segments) {
@@ -39,9 +40,9 @@ pub(crate) struct Span {
 #[pymethods]
 impl Span {
     #[new]
-    fn py_new(segments_or_span: Option<SegmentsOrSpan>) -> PyResult<Self> {
-        match segments_or_span {
-            Some(SegmentsOrSpan::Segments(segments)) => {
+    fn py_new(input: Option<SpanInput>) -> PyResult<Self> {
+        match input {
+            Some(SpanInput::Segments(segments)) => {
                 let mut output = segments
                     .iter()
                     .map(|&f| {
@@ -57,8 +58,11 @@ impl Span {
                 merge_segments(&mut output);
                 Ok(Self { segments: output })
             }
-            Some(SegmentsOrSpan::Span(span)) => Ok(span),
+            Some(SpanInput::Span(span)) => Ok(span),
             None => Ok(Self { segments: vec![] }),
+            Some(SpanInput::PyAny(py_any)) => {
+                Ok(py_any.call_method0("__span__")?.extract::<Self>()?)
+            }
         }
     }
     /// Return a shallow copy of a Span.

@@ -28,11 +28,11 @@ fn merge_segments(segments: &mut Segments) {
         if (segments[index].2 > segments[i].1)
             | ((segments[index].2 == segments[i].1)
         // check for adjacence
-                & ((segments[index].3) | (segments[i].0)))
+                & (segments[index].3 | segments[i].0))
         {
             // emulate max()
             if (segments[i].2 > segments[index].2)
-                | ((segments[i].2 == segments[index].2) & (segments[i].3))
+                | ((segments[i].2 == segments[index].2) & segments[i].3)
             {
                 segments[index].2 = segments[i].2;
                 segments[index].3 = segments[i].3;
@@ -138,7 +138,7 @@ impl Interval {
             if (segments[index].2 > segments[i].1)
                 | ((segments[index].2 == segments[i].1)
             // check for strict overlap
-                    & ((segments[index].3) & (segments[i].0)))
+                    & (segments[index].3 & segments[i].0))
             {
                 return false;
             } else {

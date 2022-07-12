@@ -63,7 +63,7 @@ impl Span {
             Some(SpanInput::Span(span)) => Ok(span),
             None => Ok(Self { segments: vec![] }),
             Some(SpanInput::PyAny(py_any)) => {
-                Ok(py_any.call_method0("__span__")?.extract::<Self>()?)
+                Ok(py_any.call_method0("to_span")?.extract::<Self>()?)
             }
         }
     }
@@ -238,7 +238,7 @@ impl Span {
             CompareOp::Ge => self.issuperset(other),
         }
     }
-    pub(crate) fn __interval__(&self) -> Interval {
+    pub(crate) fn to_interval(&self) -> Interval {
         Interval {
             segments: self
                 .segments

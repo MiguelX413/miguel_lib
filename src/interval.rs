@@ -89,11 +89,11 @@ impl Interval {
                 merge_segments(&mut output);
                 Ok(Self { segments: output })
             }
-            Some(IntervalInput::Span(span)) => Ok(span.__interval__()),
+            Some(IntervalInput::Span(span)) => Ok(span.to_interval()),
             Some(IntervalInput::Interval(interval)) => Ok(interval),
             None => Ok(Self { segments: vec![] }),
             Some(IntervalInput::PyAny(py_any)) => {
-                Ok(py_any.call_method0("__interval__")?.extract::<Self>()?)
+                Ok(py_any.call_method0("to_interval")?.extract::<Self>()?)
             }
         }
     }

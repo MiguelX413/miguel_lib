@@ -8,7 +8,7 @@ use pyo3::types::PyTuple;
 
 type Segment = (bool, f64, f64, bool);
 
-type Segments = Vec<Segment>;
+pub(crate) type Segments = Vec<Segment>;
 
 #[derive(FromPyObject)]
 enum IntervalInput<'a> {
@@ -54,7 +54,7 @@ fn validate_segment(segment: &Segment) -> bool {
 #[pyclass]
 pub(crate) struct Interval {
     #[pyo3(get)]
-    segments: Segments,
+    pub(crate) segments: Segments,
 }
 
 #[pymethods]
@@ -89,13 +89,7 @@ impl Interval {
                 merge_segments(&mut output);
                 Ok(Self { segments: output })
             }
-            Some(IntervalInput::Span(span)) => Ok(Self {
-                segments: span
-                    .segments
-                    .iter()
-                    .map(|&segment| (true, segment.0 as f64, segment.1 as f64, true))
-                    .collect::<Segments>(),
-            }),
+            Some(IntervalInput::Span(span)) => Ok(span.__interval__()),
             Some(IntervalInput::Interval(interval)) => Ok(interval),
             None => Ok(Self { segments: vec![] }),
             Some(IntervalInput::PyAny(py_any)) => {

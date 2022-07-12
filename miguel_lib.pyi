@@ -63,6 +63,7 @@ class Span:
     def __le__(self, other: Span) -> bool: ...
     def __gt__(self, other: Span) -> bool: ...
     def __ge__(self, other: Span) -> bool: ...
+    def __interval__(self) -> Interval: ...
     __hash__: None  # type: ignore
 
 class SupportsInterval(Protocol):
@@ -78,7 +79,6 @@ class Interval:
         input: Optional[
             Union[
                 Sequence[Tuple[bool, float, float, bool]],
-                Span,
                 Interval,
                 SupportsInterval,
             ]

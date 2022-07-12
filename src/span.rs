@@ -2,6 +2,8 @@ use pyo3::basic::CompareOp;
 use pyo3::exceptions::PyValueError;
 use std::cmp::{max, min};
 
+use crate::interval;
+use crate::interval::Interval;
 use pyo3::prelude::*;
 use pyo3::types::PyTuple;
 
@@ -234,6 +236,15 @@ impl Span {
             CompareOp::Le => self.issubset(other),
             CompareOp::Gt => self.issuperset(other) & (self.segments != other.segments),
             CompareOp::Ge => self.issuperset(other),
+        }
+    }
+    pub(crate) fn __interval__(&self) -> Interval {
+        Interval {
+            segments: self
+                .segments
+                .iter()
+                .map(|&segment| (true, segment.0 as f64, segment.1 as f64, true))
+                .collect::<interval::Segments>(),
         }
     }
     #[classattr]

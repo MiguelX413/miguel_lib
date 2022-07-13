@@ -1,7 +1,10 @@
-from typing import List, Optional, Sequence, Tuple, Union, Protocol
+from typing import Iterator, List, Optional, Protocol, Sequence, Tuple, TypeVar, Union
+
+T = TypeVar("T")
 
 __version__: str
 
+def iter_chunk(iter: Iterator[T], chunk_size: int) -> Iterator[List[T]]: ...
 def match_indices(string: str, substring: str) -> List[int]:
     """Returns a list of the UTF-8 indices of disjoint matches, from start to end."""
 

@@ -2,7 +2,63 @@ mod interval;
 mod span;
 
 use crate::span::Span;
+use pyo3::exceptions::{PyStopIteration, PyValueError};
+
 use pyo3::prelude::*;
+
+#[pyclass]
+pub struct ChunksIter {
+    chunk_size: usize,
+    iter: Py<PyAny>,
+}
+
+impl ChunksIter {
+    fn new(py: Python, iter: Py<PyAny>, chunk_size: usize) -> PyResult<ChunksIter> {
+        if chunk_size < 1 {
+            return Err(PyValueError::new_err("chunk_size cannot be 0 or lower."));
+        }
+        Ok(ChunksIter {
+            chunk_size,
+            iter: iter.call_method0(py, "__iter__")?,
+        })
+    }
+}
+
+#[pymethods]
+impl ChunksIter {
+    fn __iter__(slf: PyRef<'_, Self>) -> PyRef<'_, Self> {
+        slf
+    }
+    fn __next__(slf: PyRefMut<'_, Self>, py: Python) -> PyResult<Option<Vec<PyObject>>> {
+        let mut output = vec![];
+        for _ in 0..slf.chunk_size {
+            match slf.iter.call_method0(py, "__next__") {
+                Ok(ok) if ok.is_none(py) => {
+                    break;
+                }
+                Err(err) if err.is_instance_of::<PyStopIteration>(py) => {
+                    break;
+                }
+                Ok(ok) => {
+                    output.push(ok);
+                }
+                Err(err) => {
+                    return Err(err);
+                }
+            }
+        }
+        if output.is_empty() {
+            Ok(None)
+        } else {
+            Ok(Some(output))
+        }
+    }
+}
+
+#[pyfunction]
+fn iter_chunk(py: Python, iter: Py<PyAny>, chunk_size: usize) -> PyResult<ChunksIter> {
+    ChunksIter::new(py, iter, chunk_size)
+}
 
 /// Returns a list of the UTF-8 indices of disjoint matches, from start to end.
 #[pyfunction]
@@ -110,6 +166,8 @@ fn miguel_lib(py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(utf16len, m)?)?;
     interval::register(py, m)?;
     span::register(py, m)?;
+    m.add_class::<ChunksIter>()?;
+    m.add_function(wrap_pyfunction!(iter_chunk, m)?)?;
     m.add("__version__", env!("CARGO_PKG_VERSION"))?;
     Ok(())
 }

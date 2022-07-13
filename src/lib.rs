@@ -10,6 +10,7 @@ use pyo3::prelude::*;
 pub struct ChunksIter {
     chunk_size: usize,
     iter: Py<PyAny>,
+    complete: bool,
 }
 
 impl ChunksIter {
@@ -20,6 +21,7 @@ impl ChunksIter {
         Ok(ChunksIter {
             chunk_size,
             iter: iter.call_method0(py, "__iter__")?,
+            complete: false,
         })
     }
 }
@@ -29,14 +31,19 @@ impl ChunksIter {
     fn __iter__(slf: PyRef<'_, Self>) -> PyRef<'_, Self> {
         slf
     }
-    fn __next__(slf: PyRefMut<'_, Self>, py: Python) -> PyResult<Option<Vec<PyObject>>> {
+    fn __next__(mut slf: PyRefMut<'_, Self>, py: Python) -> PyResult<Option<Vec<PyObject>>> {
+        if slf.complete {
+            return Ok(None);
+        }
         let mut output = vec![];
         for _ in 0..slf.chunk_size {
             match slf.iter.call_method0(py, "__next__") {
                 Ok(ok) if ok.is_none(py) => {
+                    slf.complete = true;
                     break;
                 }
                 Err(err) if err.is_instance_of::<PyStopIteration>(py) => {
+                    slf.complete = true;
                     break;
                 }
                 Ok(ok) => {

@@ -43,16 +43,20 @@ impl ChunksIter {
                     return None;
                 }
                 match slf.iter.call_method0(py, "__next__") {
-                    Ok(ok) if ok.is_none(py) => {
-                        slf.complete = true;
-                        None
+                    Ok(ok) => {
+                        if ok.is_none(py) {
+                            slf.complete = true;
+                            return None;
+                        }
+                        Some(Ok(ok))
                     }
-                    Err(err) if err.is_instance_of::<PyStopIteration>(py) => {
-                        slf.complete = true;
-                        None
+                    Err(err) => {
+                        if err.is_instance_of::<PyStopIteration>(py) {
+                            slf.complete = true;
+                            return None;
+                        }
+                        Some(Err(err))
                     }
-                    Ok(ok) => Some(Ok(ok)),
-                    Err(err) => Some(Err(err)),
                 }
             })
             .collect::<PyResult<Vec<PyObject>>>()?;

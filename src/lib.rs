@@ -35,25 +35,28 @@ impl ChunksIter {
         if slf.complete {
             return Ok(None);
         }
-        let mut output = vec![];
-        for _ in 0..slf.chunk_size {
-            match slf.iter.call_method0(py, "__next__") {
-                Ok(ok) if ok.is_none(py) => {
-                    slf.complete = true;
-                    break;
+
+        let output = (0..slf.chunk_size)
+            .into_iter()
+            .filter_map(|_| {
+                if slf.complete {
+                    return None;
                 }
-                Err(err) if err.is_instance_of::<PyStopIteration>(py) => {
-                    slf.complete = true;
-                    break;
+                match slf.iter.call_method0(py, "__next__") {
+                    Ok(ok) if ok.is_none(py) => {
+                        slf.complete = true;
+                        None
+                    }
+                    Err(err) if err.is_instance_of::<PyStopIteration>(py) => {
+                        slf.complete = true;
+                        None
+                    }
+                    Ok(ok) => Some(Ok(ok)),
+                    Err(err) => Some(Err(err)),
                 }
-                Ok(ok) => {
-                    output.push(ok);
-                }
-                Err(err) => {
-                    return Err(err);
-                }
-            }
-        }
+            })
+            .collect::<PyResult<Vec<PyObject>>>()?;
+
         if output.is_empty() {
             Ok(None)
         } else {

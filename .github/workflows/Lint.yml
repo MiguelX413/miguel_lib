@@ -19,9 +19,10 @@ jobs:
           command: fmt
           args: --all -- --check
       - name: clippy
-        uses: actions-rs/cargo@v1
+        uses: actions-rs/clippy-check@v1
         with:
-          command: clippy
+          token: ${{ secrets.GITHUB_TOKEN }}
+          args: --all-features
   black:
     runs-on: ubuntu-latest
     steps:

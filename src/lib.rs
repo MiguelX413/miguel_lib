@@ -168,7 +168,7 @@ fn utf16len(string: &str) -> usize {
     string.chars().map(|char| char.len_utf16()).sum()
 }
 
-/// A Python module implemented in Rust.
+/// Random crap I like to use.
 #[pymodule]
 fn miguel_lib(py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(match_indices, m)?)?;

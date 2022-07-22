@@ -1,14 +1,6 @@
-from typing import (
-    Iterable,
-    Iterator,
-    List,
-    Optional,
-    Protocol,
-    Sequence,
-    Tuple,
-    TypeVar,
-    Union,
-)
+from typing import Iterable, Iterator, List, Optional, Sequence, Tuple, TypeVar, Union
+
+from .__init__ import SupportsInterval, SupportsSpan
 
 _T = TypeVar("_T")
 
@@ -35,9 +27,6 @@ def rmatch_byte_indices(string: str, substring: str) -> List[int]:
 
 def utf16len(string: str) -> int:
     """A function that returns the UTF-16 length of a string."""
-
-class SupportsSpan(Protocol):
-    def to_span(self) -> Span: ...
 
 class Span:
     """A class used to represent spans."""
@@ -78,9 +67,6 @@ class Span:
     def __gt__(self, other: Span) -> bool: ...
     def __ge__(self, other: Span) -> bool: ...
     __hash__: None  # type: ignore
-
-class SupportsInterval(Protocol):
-    def to_interval(self) -> Interval: ...
 
 class Interval:
     """A class used to represent intervals."""

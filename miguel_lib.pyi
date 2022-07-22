@@ -10,11 +10,11 @@ from typing import (
     Union,
 )
 
-T = TypeVar("T")
+_T = TypeVar("_T")
 
 __version__: str
 
-def iter_chunk(iter: Iterable[T], chunk_size: int) -> Iterator[List[T]]: ...
+def iter_chunk(iter: Iterable[_T], chunk_size: int) -> Iterator[List[_T]]: ...
 def match_indices(string: str, substring: str) -> List[int]:
     """Returns a list of the UTF-8 indices of disjoint matches, from start to end."""
 

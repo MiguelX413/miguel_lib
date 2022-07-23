@@ -16,7 +16,7 @@ pub struct ChunksIter {
 impl ChunksIter {
     fn new(py: Python, iter: Py<PyAny>, chunk_size: usize) -> PyResult<ChunksIter> {
         if chunk_size < 1 {
-            return Err(PyValueError::new_err("chunk_size cannot be 0 or lower."));
+            return Err(PyValueError::new_err("chunk_size cannot be 0 or lower"));
         }
         Ok(ChunksIter {
             chunk_size,

@@ -51,6 +51,7 @@ fn validate_segment(segment: &Segment) -> bool {
 }
 
 /// A class used to represent intervals.
+#[derive(Clone)]
 #[pyclass]
 pub(crate) struct Interval {
     #[pyo3(get)]
@@ -315,14 +316,6 @@ impl Interval {
     #[classattr]
     #[allow(non_upper_case_globals)]
     const __hash__: Option<PyObject> = None;
-}
-
-impl Clone for Interval {
-    fn clone(&self) -> Self {
-        Self {
-            segments: self.segments.clone(),
-        }
-    }
 }
 
 pub(crate) fn register(_py: Python<'_>, m: &PyModule) -> PyResult<()> {

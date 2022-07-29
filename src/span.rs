@@ -33,6 +33,7 @@ fn merge_segments(segments: &mut Segments) {
 }
 
 /// A class used to represent spans.
+#[derive(Clone)]
 #[pyclass]
 pub(crate) struct Span {
     #[pyo3(get)]
@@ -250,14 +251,6 @@ impl Span {
     #[classattr]
     #[allow(non_upper_case_globals)]
     const __hash__: Option<PyObject> = None;
-}
-
-impl Clone for Span {
-    fn clone(&self) -> Self {
-        Self {
-            segments: self.segments.clone(),
-        }
-    }
 }
 
 pub(crate) fn register(_py: Python<'_>, m: &PyModule) -> PyResult<()> {

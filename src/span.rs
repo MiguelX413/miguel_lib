@@ -33,7 +33,7 @@ fn merge_segments(segments: &mut Segments) {
 }
 
 /// A class used to represent spans.
-#[derive(Clone)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 #[pyclass]
 pub(crate) struct Span {
     #[pyo3(get)]
@@ -115,7 +115,7 @@ impl Span {
     }
     /// Return True if other contains this Span, else False.
     fn issubset(&self, other: &Self) -> bool {
-        other.segments == other.__or__(self).segments
+        other == &other.__or__(self)
     }
     /// Return True if this Span contains other, else False.
     fn issuperset(&self, other: &Self) -> bool {
@@ -231,11 +231,11 @@ impl Span {
     }
     fn __richcmp__(&self, other: &Self, op: CompareOp) -> bool {
         match op {
-            CompareOp::Eq => self.segments == other.segments,
-            CompareOp::Ne => self.segments != other.segments,
-            CompareOp::Lt => self.issubset(other) & (self.segments != other.segments),
+            CompareOp::Eq => self == other,
+            CompareOp::Ne => self != other,
+            CompareOp::Lt => self.issubset(other) & (self != other),
             CompareOp::Le => self.issubset(other),
-            CompareOp::Gt => self.issuperset(other) & (self.segments != other.segments),
+            CompareOp::Gt => self.issuperset(other) & (self != other),
             CompareOp::Ge => self.issuperset(other),
         }
     }

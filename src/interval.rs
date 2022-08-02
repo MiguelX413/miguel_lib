@@ -1,6 +1,7 @@
 use pyo3::basic::CompareOp;
 use pyo3::exceptions::PyValueError;
 use std::cmp::Ordering;
+use std::hash::{Hash, Hasher};
 
 use crate::Span;
 use pyo3::prelude::*;
@@ -51,11 +52,28 @@ fn validate_segment(segment: &Segment) -> bool {
 }
 
 /// A class used to represent intervals.
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug)]
 #[pyclass]
 pub(crate) struct Interval {
     #[pyo3(get)]
     pub(crate) segments: Segments,
+}
+
+impl Hash for Interval {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        (self
+            .segments
+            .iter()
+            .map(|&f| (f.0, f.1.to_bits(), f.2.to_bits(), f.3))
+            .collect::<Vec<(bool, u64, u64, bool)>>(),)
+            .hash(state)
+    }
+}
+
+impl PartialEq for Interval {
+    fn eq(&self, other: &Self) -> bool {
+        self.segments == other.segments
+    }
 }
 
 #[pymethods]

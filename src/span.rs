@@ -33,7 +33,7 @@ fn merge_segments(segments: &mut Segments) {
 }
 
 /// A class used to represent spans.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
 #[pyclass]
 pub(crate) struct Span {
     #[pyo3(get)]

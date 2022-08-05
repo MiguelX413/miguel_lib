@@ -242,8 +242,9 @@ impl Interval {
             let mut output = Self { segments: vec![] };
             let mut next_bound = 0;
             let mut bottom_bound;
+            let mut temp_left_bound;
             for &x in &self.segments {
-                let mut temp_left_bound = (x.0, x.1);
+                temp_left_bound = (x.0, x.1);
                 bottom_bound = next_bound;
                 for y in bottom_bound..other.segments.len() {
                     if (x.2 < other.segments[y].1)

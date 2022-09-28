@@ -1,4 +1,5 @@
 from typing import (
+    Generic,
     Iterable,
     Iterator,
     List,
@@ -14,7 +15,11 @@ _T = TypeVar("_T")
 
 __version__: str
 
-def iter_chunk(iter: Iterable[_T], chunk_size: int) -> Iterator[List[_T]]: ...
+class ChunksIter(Generic[_T]):
+    def __new__(cls, iter: Iterable[_T], chunk_size: int) -> ChunksIter[_T]: ...
+    def __iter__(self) -> ChunksIter[_T]: ...
+    def __next__(self) -> List[_T]: ...
+
 def match_indices(string: str, substring: str) -> List[int]:
     """Returns a list of the UTF-8 indices of disjoint matches, from start to end."""
 

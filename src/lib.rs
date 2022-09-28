@@ -13,21 +13,19 @@ pub struct ChunksIter {
     complete: bool,
 }
 
+#[pymethods]
 impl ChunksIter {
-    fn new(py: Python, iter: Py<PyAny>, chunk_size: usize) -> PyResult<ChunksIter> {
+    #[new]
+    fn py_new(py: Python, iter: Py<PyAny>, chunk_size: usize) -> PyResult<Self> {
         if chunk_size < 1 {
             return Err(PyValueError::new_err("chunk_size cannot be 0 or lower"));
         }
-        Ok(ChunksIter {
+        Ok(Self {
             chunk_size,
             iter: iter.call_method0(py, "__iter__")?,
             complete: false,
         })
     }
-}
-
-#[pymethods]
-impl ChunksIter {
     fn __iter__(slf: PyRef<'_, Self>) -> PyRef<'_, Self> {
         slf
     }
@@ -67,11 +65,6 @@ impl ChunksIter {
             Ok(Some(output))
         }
     }
-}
-
-#[pyfunction]
-fn iter_chunk(py: Python, iter: Py<PyAny>, chunk_size: usize) -> PyResult<ChunksIter> {
-    ChunksIter::new(py, iter, chunk_size)
 }
 
 /// Returns a list of the UTF-8 indices of disjoint matches, from start to end.
@@ -181,7 +174,6 @@ fn miguel_lib(py: Python, m: &PyModule) -> PyResult<()> {
     interval::register(py, m)?;
     span::register(py, m)?;
     m.add_class::<ChunksIter>()?;
-    m.add_function(wrap_pyfunction!(iter_chunk, m)?)?;
     m.add("__version__", env!("CARGO_PKG_VERSION"))?;
     Ok(())
 }

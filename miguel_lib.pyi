@@ -1,3 +1,5 @@
+"""Random crap I like to use"""
+
 from typing import Generic, Iterable, List, TypeVar
 
 _T = TypeVar("_T")

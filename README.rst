@@ -39,5 +39,3 @@ Random crap I like to use
 **miguel_lib**
 
 - utf16len() - UTF-16 length of a string.
-
-- Interval math.

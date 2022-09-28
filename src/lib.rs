@@ -1,7 +1,3 @@
-mod interval;
-mod span;
-
-use crate::span::Span;
 use pyo3::exceptions::{PyStopIteration, PyValueError};
 
 use pyo3::prelude::*;
@@ -163,7 +159,7 @@ fn utf16len(string: &str) -> usize {
 
 /// Random crap I like to use.
 #[pymodule]
-fn miguel_lib(py: Python, m: &PyModule) -> PyResult<()> {
+fn miguel_lib(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(match_indices, m)?)?;
     m.add_function(wrap_pyfunction!(match_utf16_indices, m)?)?;
     m.add_function(wrap_pyfunction!(match_byte_indices, m)?)?;
@@ -171,8 +167,6 @@ fn miguel_lib(py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(rmatch_utf16_indices, m)?)?;
     m.add_function(wrap_pyfunction!(rmatch_byte_indices, m)?)?;
     m.add_function(wrap_pyfunction!(utf16len, m)?)?;
-    interval::register(py, m)?;
-    span::register(py, m)?;
     m.add_class::<ChunksIter>()?;
     m.add("__version__", env!("CARGO_PKG_VERSION"))?;
     Ok(())

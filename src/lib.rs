@@ -2,6 +2,7 @@ use pyo3::exceptions::{PyStopIteration, PyValueError};
 
 use pyo3::prelude::*;
 
+/// An Iterator which takes an interator and outputs its output in groups the size of a given chunk size
 #[pyclass]
 pub struct ChunksIter {
     chunk_size: usize,

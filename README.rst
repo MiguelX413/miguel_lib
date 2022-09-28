@@ -38,4 +38,18 @@ Random crap I like to use
 
 **miguel_lib**
 
-- utf16len() - UTF-16 length of a string.
+- ChunksIter: An Iterator which takes an interator and outputs its output in groups the size of a given chunk size
+
+- match_indices(string: str, substring: str) -> List[int]: Returns a list of the UTF-8 indices of disjoint matches, from start to end.
+
+- match_utf16_indices(string: str, substring: str) -> List[int]: Returns a list of the UTF-16 indices of disjoint matches, from start to end.
+
+- match_byte_indices(string: str, substring: str) -> List[int]: Returns a list of the byte indices of disjoint matches, from start to end.
+
+- rmatch_indices(string: str, substring: str) -> List[int]: Returns a list of the UTF-8 indices of disjoint matches, from end to start.
+
+- rmatch_utf16_indices(string: str, substring: str) -> List[int]: Returns a list of the UTF-16 indices of disjoint matches, from end to start.
+
+- rmatch_byte_indices(string: str, substring: str) -> List[int]: Returns a list of the byte indices of disjoint matches, from end to start.
+
+- utf16len(string: str) -> int: A function that returns the UTF-16 length of a string.

@@ -155,7 +155,7 @@ fn rmatch_byte_indices(string: &str, substring: &str) -> Vec<usize> {
 /// A function that returns the UTF-16 length of a string.
 #[pyfunction]
 fn utf16len(string: &str) -> usize {
-    string.chars().map(|char| char.len_utf16()).sum()
+    string.chars().map(char::len_utf16).sum()
 }
 
 /// Random crap I like to use.
